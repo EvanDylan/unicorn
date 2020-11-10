@@ -5,20 +5,19 @@
     <parent>
         <artifactId>unicorn</artifactId>
         <groupId>org.rhine</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>unicorn-store</artifactId>
+    <artifactId>unicorn-storage</artifactId>
     <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
 
-    <name>unicorn-store</name>
     <modules>
         <module>unicorn-storage-api</module>
         <module>unicorn-storage-mysql</module>
         <module>unicorn-storage-redis</module>
         <module>unicorn-storage-file</module>
     </modules>
-
-
 </project>
