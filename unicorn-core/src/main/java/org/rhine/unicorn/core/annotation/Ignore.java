@@ -1,4 +1,4 @@
-package org.rhine.unicorn.core.config.annotation;
+package org.rhine.unicorn.core.annotation;
 
 import java.lang.annotation.*;
 

@@ -3,17 +3,26 @@ package org.rhine.unicorn.core.config;
 import java.util.List;
 import java.util.Properties;
 
-public class Configuration {
+/**
+ * config info
+ */
+public interface Configuration {
 
-    private Properties properties;
+    /**
+     * get properties
+     * @return Properties
+     */
+    Properties getProperties();
 
-    private List<String> packageLocations;
+    /**
+     * get store type
+     * @return store type
+     */
+    String getStoreType();
 
-    public List<String> getPackageLocations() {
-        return packageLocations;
-    }
-
-    public Configuration(Properties properties) {
-        this.properties = properties;
-    }
+    /**
+     * location of been scan
+     * @return the collection of location
+     */
+    List<String> getScanLocations();
 }

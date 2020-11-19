@@ -9,7 +9,7 @@ import org.rhine.unicorn.storage.api.WriteExcetion;
 public class MySQLStore implements Store {
 
     @Override
-    public int write(Message message) throws WriteExcetion {
+    public long write(Message message) throws WriteExcetion {
         return 0;
     }
 

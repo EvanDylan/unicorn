@@ -7,16 +7,21 @@ public class Message implements Serializable {
 
     private static final long serialVersionUID = 2112380405948142230L;
 
+    private String domain;
+
     private String value;
 
     private int duration;
+
+    private long timestamp;
 
     private TimeUnit timeUnit;
 
     @Override
     public String toString() {
         return "Message{" +
-                "value='" + value + '\'' +
+                "domain='" + domain + '\'' +
+                ", value='" + value + '\'' +
                 ", duration=" + duration +
                 ", timeUnit=" + timeUnit +
                 '}';
