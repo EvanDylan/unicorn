@@ -1,4 +1,4 @@
-package org.rhine.unicorn.core.config;
+package org.rhine.unicorn.core.proxy;
 
 public class IdempotentProxyFactory {
 

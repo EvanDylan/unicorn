@@ -17,12 +17,27 @@ public class GenericConfiguration implements Configuration{
     }
 
     @Override
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    @Override
     public String getStoreType() {
         return this.storeType;
     }
 
     @Override
+    public void setStoreType(String storeType) {
+        this.storeType = storeType;
+    }
+
+    @Override
     public List<String> getScanLocations() {
         return this.scanLocations;
+    }
+
+    @Override
+    public void setScanLocations(List<String> locations) {
+        this.scanLocations = locations;
     }
 }

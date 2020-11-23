@@ -1,6 +1,9 @@
 package org.rhine.unicorn.core.extension;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.rhine.unicorn.core.common.CollectionUtils;
+import org.rhine.unicorn.core.common.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -9,37 +12,90 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ExtensionLoader {
 
-    public static final String EXTENSION_DIRECTORY = "META-INF/unicorn/";
+    private static final String EXTENSION_DIRECTORY = "META-INF/unicorn/";
 
     private static final Map<String, Set<String>> LOADED_EXTENSIONS = new ConcurrentHashMap<>();
 
-    private static final Map<String, Set<ExtensionDefinition>> LOADED_CLASSES = new ConcurrentHashMap<>();
-
-    private static final Map<Class<?>, Object> BEEN_INITIALIZED = new ConcurrentHashMap<>();
+    private static final Map<String, Set<Class<?>>> LOADED_EXTENSION_IMPLEMENT_CLASSES = new ConcurrentHashMap<>();
 
     static {
         loadingExtensions(EXTENSION_DIRECTORY);
     }
 
-    public static Class<?> findFirst(Class<?> clazz) {
+    @SuppressWarnings("unchecked")
+    public static <T> T getFirstInstance(Class<T> clazz) {
         if (clazz == null) return null;
-        String className = clazz.getName();
-        Set<ExtensionDefinition> classes = LOADED_CLASSES.get(className);
-        if (classes != null && !classes.isEmpty()) {
-            return classes.iterator().next().getClazz();
+        Set<Class<?>> classes = loadingExtensionClass(clazz);
+        if (CollectionUtils.isEmpty(classes)) {
+            return null;
         }
-        synchronized (LOADED_EXTENSIONS) {
-            Set<String> classNames = LOADED_EXTENSIONS.get(className);
-            if (classNames != null && !classNames.isEmpty()) {
-
+        for (Class<?> implementsClass : classes) {
+            Object o = ExtensionDefinitionRegistry.getInstance(implementsClass);
+            if (o != null) {
+                return (T) o;
             }
         }
         return null;
     }
 
-    public static Class<?> findClass(Class<?> clazz, String name) {
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> getInstance(Class<T> clazz) {
+        if (clazz == null) return null;
+        Set<Class<?>> classes = loadingExtensionClass(clazz);
+        if (CollectionUtils.isEmpty(classes)) {
+            return null;
+        }
+        List<T> list = Lists.newArrayList();
+        for (Class<?> implementsClass : classes) {
+            Object o = ExtensionDefinitionRegistry.getInstance(implementsClass);
+            if (o != null) {
+                list.add((T) o);
+            }
+        }
+        return list;
+    }
 
+    @SuppressWarnings("unchecked")
+    public static <T> T getInstance(Class<?> clazz, String spiName) {
+        if (clazz == null) return null;
+        Set<Class<?>> classes = loadingExtensionClass(clazz);
+        if (CollectionUtils.isEmpty(classes)) {
+            return null;
+        }
+        for (Class<?> implementsClass : classes) {
+            ExtensionDefinition extensionDefinition = ExtensionDefinitionRegistry.getExtensionDefinition(implementsClass);
+            if (extensionDefinition == null) continue;
+            SPI spi = extensionDefinition.getSpi();
+            if (spi != null && spi.name().equals(spiName)) {
+                Object o = ExtensionDefinitionRegistry.getInstance(extensionDefinition.getClazz());
+                if (o != null) {
+                   return (T) o;
+                }
+            }
+        }
         return null;
+    }
+
+    private static Set<Class<?>> loadingExtensionClass(Class<?> clazz) {
+        String classname = clazz.getName();
+        ClassLoader classLoader = getCurrentClassLoader();
+        Set<String> classNames = LOADED_EXTENSIONS.get(classname);
+        if (classNames == null || classNames.isEmpty()) {
+            return Sets.newHashSet();
+        }
+        synchronized (LOADED_EXTENSION_IMPLEMENT_CLASSES) {
+            Set<Class<?>> extensionImplementsClasses = Sets.newHashSet();
+            for (String className : classNames) {
+                try {
+                    Class<?> implementClazz = classLoader.loadClass(className);
+                    extensionImplementsClasses.add(implementClazz);
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalArgumentException("Unable to load class [" + className + "]", e);
+                }
+            }
+            LOADED_EXTENSION_IMPLEMENT_CLASSES.put(classname, extensionImplementsClasses);
+            return extensionImplementsClasses;
+        }
     }
 
     private static void loadingExtensions(String path) {
@@ -55,12 +111,12 @@ public class ExtensionLoader {
                 }
                 for (Map.Entry<Object, Object> keyValueEntry : prop.entrySet()) {
                     String key = (String) keyValueEntry.getKey();
-                    String value = (String) keyValueEntry.getValue();
+                    String[] value = StringUtils.splitWithCommaSeparator((String) keyValueEntry.getValue()) ;
                     synchronized (LOADED_EXTENSIONS) {
                         if (LOADED_EXTENSIONS.get(key) == null) {
                             LOADED_EXTENSIONS.put(key, Sets.newHashSet(value));
                         } else {
-                            LOADED_EXTENSIONS.get(key).add(value);
+                            LOADED_EXTENSIONS.get(key).addAll(Arrays.asList(value));
                         }
                     }
                 }
@@ -68,10 +124,6 @@ public class ExtensionLoader {
         } catch (IOException e) {
             throw new IllegalArgumentException("Unable to load extension with directory [" + EXTENSION_DIRECTORY + "]", e);
         }
-    }
-
-    private static List<ExtensionDefinition> loadExtensionClass() {
-        return null;
     }
 
     private static ClassLoader getCurrentClassLoader() {

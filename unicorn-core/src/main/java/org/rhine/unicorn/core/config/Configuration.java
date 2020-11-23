@@ -14,15 +14,21 @@ public interface Configuration {
      */
     Properties getProperties();
 
+    void setProperties(Properties properties);
+
     /**
      * get store type
      * @return store type
      */
     String getStoreType();
 
+    void setStoreType(String storeType);
+
     /**
-     * location of been scan
+     * location of will be scan
      * @return the collection of location
      */
     List<String> getScanLocations();
+
+    void setScanLocations(List<String> locations);
 }
