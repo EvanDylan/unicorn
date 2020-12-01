@@ -1,3 +1,0 @@
-org.rhine.unicorn.core.extension.Store=org.rhine.unicorn.core.extension.FileStore,\
-org.rhine.unicorn.core.extension.RedisStore
-org.rhine.unicorn.core.config.ParserHandler=org.rhine.unicorn.core.config.CustomizeHandler

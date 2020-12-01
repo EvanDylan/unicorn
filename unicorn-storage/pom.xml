@@ -16,7 +16,7 @@
 
     <modules>
         <module>unicorn-storage-api</module>
-        <module>unicorn-storage-mysql</module>
+        <module>unicorn-storage-db</module>
         <module>unicorn-storage-redis</module>
         <module>unicorn-storage-file</module>
     </modules>

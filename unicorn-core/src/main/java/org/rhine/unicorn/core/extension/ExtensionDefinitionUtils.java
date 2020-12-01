@@ -1,6 +1,6 @@
 package org.rhine.unicorn.core.extension;
 
-import org.rhine.unicorn.core.common.AnnotationUtils;
+import org.rhine.unicorn.core.utils.AnnotationUtils;
 
 public class ExtensionDefinitionUtils {
 

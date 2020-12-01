@@ -8,6 +8,10 @@ import java.util.Properties;
  */
 public interface Configuration {
 
+    Object getValue(String key);
+
+    String getStringValue(String key);
+
     /**
      * get properties
      * @return Properties

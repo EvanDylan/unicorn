@@ -16,5 +16,11 @@ public @interface Idempotent {
 
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
-    String domain() default "";
+    /**
+     * default is qualified method name
+     */
+    String name() default "";
+
+    String key() default "";
+
 }

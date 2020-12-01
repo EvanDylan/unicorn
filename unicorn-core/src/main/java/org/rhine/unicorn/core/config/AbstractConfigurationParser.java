@@ -1,7 +1,8 @@
 package org.rhine.unicorn.core.config;
 
-import org.rhine.unicorn.core.common.CollectionUtils;
-import org.rhine.unicorn.core.common.StringUtils;
+import com.google.common.collect.Lists;
+import org.rhine.unicorn.core.utils.CollectionUtils;
+import org.rhine.unicorn.core.utils.StringUtils;
 import org.rhine.unicorn.core.extension.ExtensionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,13 @@ public abstract class AbstractConfigurationParser implements ConfigurationParser
 
     public static String STORE_TYPE = "storeType";
 
-    private final List<ParserHandler> parserHandlers = ExtensionLoader.getInstance(ParserHandler.class);
+    private final List<ParserHandler> parserHandlers = Lists.newArrayList(ExtensionLoader.getInstance(ParserHandler.class));
+
+    private Configuration configuration;
 
     @Override
-    public Configuration parse(Properties properties, ParserContext parserContext) {
-        Configuration configuration = new GenericConfiguration();
+    public void parse(Properties properties, ParserContext parserContext) {
+        configuration = new GenericConfiguration();
         configuration.setProperties(properties);
         configuration.setScanLocations(Arrays.asList(StringUtils
                 .splitWithCommaSeparator(properties.getProperty(PACKAGE_LOCATIONS))));
@@ -37,6 +40,5 @@ public abstract class AbstractConfigurationParser implements ConfigurationParser
                 }
             }
         }
-        return configuration;
     }
 }

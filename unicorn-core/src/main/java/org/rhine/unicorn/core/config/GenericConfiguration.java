@@ -12,6 +12,22 @@ public class GenericConfiguration implements Configuration{
     private List<String> scanLocations;
 
     @Override
+    public Object getValue(String key) {
+        if (properties != null) {
+            return properties.get(key);
+        }
+        return null;
+    }
+
+    @Override
+    public String getStringValue(String key) {
+        if (properties != null) {
+            return properties.getProperty(key);
+        }
+        return null;
+    }
+
+    @Override
     public Properties getProperties() {
         return this.properties;
     }

@@ -1,14 +1,14 @@
 package org.rhine.unicorn.storage.redis;
 
-import org.rhine.unicorn.storage.api.Message;
-import org.rhine.unicorn.storage.api.ReadException;
-import org.rhine.unicorn.storage.api.Store;
-import org.rhine.unicorn.storage.api.WriteExcetion;
+import org.rhine.unicorn.core.store.Message;
+import org.rhine.unicorn.core.store.ReadException;
+import org.rhine.unicorn.core.store.Store;
+import org.rhine.unicorn.core.store.WriteException;
 
 public class RedisStore implements Store {
 
     @Override
-    public long write(Message message) throws WriteExcetion {
+    public long write(Message message) throws WriteException {
         return 0;
     }
 

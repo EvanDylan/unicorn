@@ -5,39 +5,36 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ExtensionDefinitionRegistry {
 
-    private static final Map<Class<?>, ExtensionDefinition> CACHED_EXTENSION_IMPLEMENT_DEFINITION = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, ExtensionDefinition> extensionDefinitionCache = new ConcurrentHashMap<>();
 
-    private static final Map<ExtensionDefinition, Object> CACHED_EXTENSION_IMPLEMENT_CLASS_INSTANCE = new ConcurrentHashMap<>();
+    private static final Map<ExtensionDefinition, Object> extensionInstanceCache = new ConcurrentHashMap<>();
 
-    public static ExtensionDefinition register(Class<?> clazz) {
-        synchronized (CACHED_EXTENSION_IMPLEMENT_DEFINITION) {
-            ExtensionDefinition extensionDefinition = CACHED_EXTENSION_IMPLEMENT_DEFINITION.get(clazz);
+    public static ExtensionDefinition register(final Class<?> clazz) {
+        synchronized (extensionDefinitionCache) {
+            ExtensionDefinition extensionDefinition = extensionDefinitionCache.get(clazz);
             if (extensionDefinition == null) {
                 extensionDefinition = ExtensionDefinitionUtils.getExtensionDefinition(clazz);
-                CACHED_EXTENSION_IMPLEMENT_DEFINITION.put(clazz, extensionDefinition);
+                extensionDefinitionCache.put(clazz, extensionDefinition);
             }
             return extensionDefinition;
         }
     }
 
-    public static ExtensionDefinition getExtensionDefinition(Class<?> clazz) {
-        return CACHED_EXTENSION_IMPLEMENT_DEFINITION.get(clazz);
+    public static ExtensionDefinition getExtensionDefinition(final Class<?> clazz) {
+        return extensionDefinitionCache.get(clazz);
     }
 
-    public static Object getInstance(Class<?> clazz) {
-        ExtensionDefinition extensionDefinition;
-        synchronized (CACHED_EXTENSION_IMPLEMENT_DEFINITION) {
-            extensionDefinition = getExtensionDefinition(clazz);
+    public static Object getInstance(final Class<?> clazz) {
+        synchronized (extensionInstanceCache) {
+            ExtensionDefinition extensionDefinition = getExtensionDefinition(clazz);
             if (extensionDefinition == null) {
-                extensionDefinition = register(clazz);
+                throw new IllegalArgumentException("Unable get [" + clazz.getName() + "]");
             }
-        }
-        synchronized (CACHED_EXTENSION_IMPLEMENT_CLASS_INSTANCE) {
-            Object instance = CACHED_EXTENSION_IMPLEMENT_CLASS_INSTANCE.get(extensionDefinition);
+            Object instance = extensionInstanceCache.get(extensionDefinition);
             if (instance == null) {
                 try {
                     instance = clazz.newInstance();
-                    CACHED_EXTENSION_IMPLEMENT_CLASS_INSTANCE.put(extensionDefinition, instance);
+                    extensionInstanceCache.put(extensionDefinition, instance);
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new RuntimeException("can't create instance of [" + clazz.getName() + "]", e);
                 }

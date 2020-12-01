@@ -21,6 +21,8 @@
         <junit.version>4.11</junit.version>
         <slf4j-api.version>1.7.30</slf4j-api.version>
         <guice.version>4.2.3</guice.version>
+        <h2database.version>1.4.200</h2database.version>
+        <jedis.version>3.3.0</jedis.version>
     </properties>
 
     <modules>

@@ -4,6 +4,6 @@ import java.util.Properties;
 
 public interface ConfigurationParser {
 
-    Configuration parse(Properties properties, ParserContext parserContext);
+    void parse(Properties properties, ParserContext parserContext);
 
 }
