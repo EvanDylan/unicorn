@@ -1,42 +1,47 @@
 package org.rhine.unicorn.core.extension;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 
 public class ExtensionDefinition {
 
-    private Class<?> clazz;
+    private Class<?> interfaceClass;
 
-    private SPI spi;
+    private Class<?> extensionClass;
 
-    private String className;
+    private String extensionName;
 
-    public Class<?> getClazz() {
-        return clazz;
+    private boolean singleton;
+
+    public Class<?> getInterfaceClass() {
+        return interfaceClass;
     }
 
-    public void setClazz(Class<?> clazz) {
-        this.clazz = clazz;
+    public void setInterfaceClass(Class<?> interfaceClass) {
+        this.interfaceClass = interfaceClass;
     }
 
-    public SPI getSpi() {
-        return spi;
+    public Class<?> getExtensionClass() {
+        return extensionClass;
     }
 
-    public void setSpi(SPI spi) {
-        this.spi = spi;
+    public void setExtensionClass(Class<?> extensionClass) {
+        this.extensionClass = extensionClass;
     }
 
-    public String getClassName() {
-        return className;
+    public String getExtensionName() {
+        return extensionName;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    public void setExtensionName(String extensionName) {
+        this.extensionName = extensionName;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(clazz, spi, className);
+    public boolean isSingleton() {
+        return singleton;
+    }
+
+    public void setSingleton(boolean singleton) {
+        this.singleton = singleton;
     }
 
     @Override
@@ -44,10 +49,13 @@ public class ExtensionDefinition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ExtensionDefinition that = (ExtensionDefinition) o;
-        if (that.getSpi() != null) {
-            return clazz.equals(that.clazz) && className.equals(that.className) &&
-                    spi.equals(that.spi);
-        }
-        return clazz.equals(that.clazz) && className.equals(that.className);
+        return Objects.equal(interfaceClass, that.interfaceClass) &&
+                Objects.equal(extensionClass, that.extensionClass) &&
+                Objects.equal(extensionName, that.extensionName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(interfaceClass, extensionClass, extensionName);
     }
 }

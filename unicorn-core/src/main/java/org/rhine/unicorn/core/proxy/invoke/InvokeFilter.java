@@ -1,4 +1,4 @@
-package org.rhine.unicorn.core.invoke;
+package org.rhine.unicorn.core.proxy.invoke;
 
 public interface InvokeFilter {
 

@@ -8,11 +8,19 @@ import org.rhine.unicorn.core.store.WriteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
+
 public class DBStore implements Store {
 
     private static final Logger logger = LoggerFactory.getLogger(DBStore.class);
 
     private DatabaseOperationTemplate databaseOperationTemplate;
+
+    @Override
+    public void init() {
+        // TODO init
+        databaseOperationTemplate = new DatabaseOperationTemplate(null);
+    }
 
     @Override
     public long write(Message message) throws WriteException {

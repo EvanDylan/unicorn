@@ -9,4 +9,5 @@ public @interface SPI {
 
     String name() default "";
 
+    boolean singleton() default true;
 }

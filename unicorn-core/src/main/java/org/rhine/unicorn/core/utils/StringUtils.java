@@ -2,6 +2,8 @@ package org.rhine.unicorn.core.utils;
 
 public class StringUtils {
 
+    public static String EMPTY_STRING = "";
+
     public static boolean isEmpty(String string) {
         return string == null || string.length() == 0;
     }

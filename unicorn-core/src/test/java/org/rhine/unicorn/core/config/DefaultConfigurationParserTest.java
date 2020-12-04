@@ -14,7 +14,7 @@ public class DefaultConfigurationParserTest {
         Properties properties = new Properties();
         properties.setProperty("packageLocations", "com");
         ParserContext parserContext = new ParserContext();
-        new DefaultConfigurationParser().parse(properties, parserContext);
+        new DefaultConfigParser().parse(properties, parserContext);
         System.out.println(parserContext);
     }
 

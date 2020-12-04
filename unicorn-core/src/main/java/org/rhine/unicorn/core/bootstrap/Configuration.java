@@ -1,4 +1,4 @@
-package org.rhine.unicorn.core.config;
+package org.rhine.unicorn.core.bootstrap;
 
 import java.util.List;
 import java.util.Properties;
@@ -18,21 +18,15 @@ public interface Configuration {
      */
     Properties getProperties();
 
-    void setProperties(Properties properties);
-
     /**
      * get store type
      * @return store type
      */
     String getStoreType();
 
-    void setStoreType(String storeType);
-
     /**
      * location of will be scan
      * @return the collection of location
      */
     List<String> getScanLocations();
-
-    void setScanLocations(List<String> locations);
 }

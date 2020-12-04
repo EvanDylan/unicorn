@@ -1,5 +1,7 @@
 package org.rhine.unicorn.core.config;
 
+import org.rhine.unicorn.core.bootstrap.Configuration;
+
 import java.util.Properties;
 
 public class CustomizeHandler implements ParserHandler {

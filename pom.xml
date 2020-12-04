@@ -20,15 +20,17 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <junit.version>4.11</junit.version>
         <slf4j-api.version>1.7.30</slf4j-api.version>
-        <guice.version>4.2.3</guice.version>
         <h2database.version>1.4.200</h2database.version>
         <jedis.version>3.3.0</jedis.version>
+        <commons-jexl3.version>3.1</commons-jexl3.version>
+        <spring-expression.version>5.2.9.RELEASE</spring-expression.version>
     </properties>
 
     <modules>
         <module>unicorn-demo</module>
         <module>unicorn-core</module>
         <module>unicorn-storage</module>
+        <module>unicorn-expression</module>
         <module>unicorn-spring</module>
         <module>unicorn-springboot</module>
     </modules>
@@ -51,6 +53,21 @@
             <version>30.0-jre</version>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-jexl3</artifactId>
+                <version>${commons-jexl3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>${spring-expression.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <pluginManagement>

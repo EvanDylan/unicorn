@@ -21,4 +21,11 @@ public class ReflectUtils {
         return coll;
     }
 
+    public static Object newInstance(Class<?> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("can't create instance of [" + clazz.getName() + "]", e);
+        }
+    }
 }

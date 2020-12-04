@@ -1,6 +1,9 @@
 package org.rhine.unicorn.core.config;
 
 import com.google.common.collect.Lists;
+import org.rhine.unicorn.core.bootstrap.Configuration;
+import org.rhine.unicorn.core.bootstrap.GenericConfiguration;
+import org.rhine.unicorn.core.extension.ExtensionFactory;
 import org.rhine.unicorn.core.utils.CollectionUtils;
 import org.rhine.unicorn.core.utils.StringUtils;
 import org.rhine.unicorn.core.extension.ExtensionLoader;
@@ -11,26 +14,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-public abstract class AbstractConfigurationParser implements ConfigurationParser {
+public abstract class AbstractConfigParser implements ConfigParser {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractConfigurationParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractConfigParser.class);
 
     public static String PACKAGE_LOCATIONS = "packageLocations";
 
     public static String STORE_TYPE = "storeType";
 
-    private final List<ParserHandler> parserHandlers = Lists.newArrayList(ExtensionLoader.getInstance(ParserHandler.class));
-
-    private Configuration configuration;
+    private final List<ParserHandler> parserHandlers = Lists.newArrayList(ExtensionFactory.getAllInstance(ParserHandler.class));
 
     @Override
     public void parse(Properties properties, ParserContext parserContext) {
-        configuration = new GenericConfiguration();
-        configuration.setProperties(properties);
-        configuration.setScanLocations(Arrays.asList(StringUtils
-                .splitWithCommaSeparator(properties.getProperty(PACKAGE_LOCATIONS))));
-        configuration.setStoreType(properties.getProperty(STORE_TYPE));
-        parserContext.setConfiguration(configuration);
         if (CollectionUtils.isNotEmpty(parserHandlers)) {
             for (ParserHandler parserHandler : parserHandlers) {
                 try {

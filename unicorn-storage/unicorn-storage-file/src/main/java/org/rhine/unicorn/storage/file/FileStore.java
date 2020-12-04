@@ -8,6 +8,11 @@ import org.rhine.unicorn.core.store.WriteException;
 public class FileStore implements Store {
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public long write(Message message) throws WriteException {
         return 0;
     }

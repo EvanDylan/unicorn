@@ -1,5 +1,8 @@
 package org.rhine.unicorn.core.config;
 
+import org.rhine.unicorn.core.bootstrap.Configuration;
+import org.rhine.unicorn.core.bootstrap.GenericConfiguration;
+
 public class CustomizeConfiguration extends GenericConfiguration {
 
     private String customizeConfiguration;
