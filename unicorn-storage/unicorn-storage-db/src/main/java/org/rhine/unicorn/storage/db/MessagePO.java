@@ -2,9 +2,7 @@ package org.rhine.unicorn.storage.db;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class MessagePO implements Serializable {
 
@@ -12,7 +10,7 @@ public class MessagePO implements Serializable {
 
     private Long id;
 
-    private String system;
+    private String serviceName;
 
     private String name;
 
@@ -32,12 +30,12 @@ public class MessagePO implements Serializable {
         this.id = id;
     }
 
-    public String getSystem() {
-        return system;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setSystem(String system) {
-        this.system = system;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getName() {
@@ -84,7 +82,7 @@ public class MessagePO implements Serializable {
     public String toString() {
         return "MessagePO{" +
                 "id=" + id +
-                ", system='" + system + '\'' +
+                ", system='" + serviceName + '\'' +
                 ", name='" + name + '\'' +
                 ", key='" + key + '\'' +
                 ", response=" + Arrays.toString(response) +
@@ -99,7 +97,7 @@ public class MessagePO implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         MessagePO messagePO = (MessagePO) o;
         return Objects.equals(id, messagePO.id) &&
-                Objects.equals(system, messagePO.system) &&
+                Objects.equals(serviceName, messagePO.serviceName) &&
                 Objects.equals(name, messagePO.name) &&
                 Objects.equals(key, messagePO.key) &&
                 Arrays.equals(response, messagePO.response) &&
@@ -109,7 +107,7 @@ public class MessagePO implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, system, name, key, createdTimestamp, expiredTimestamp);
+        int result = Objects.hash(id, serviceName, name, key, createdTimestamp, expiredTimestamp);
         result = 31 * result + Arrays.hashCode(response);
         return result;
     }

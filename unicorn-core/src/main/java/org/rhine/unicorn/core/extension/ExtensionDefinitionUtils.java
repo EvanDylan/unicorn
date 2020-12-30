@@ -4,16 +4,16 @@ import org.rhine.unicorn.core.utils.AnnotationUtils;
 
 public class ExtensionDefinitionUtils {
 
-    public static ExtensionDefinition getExtensionDefinition(Class<?> clazz) {
-        ExtensionDefinition extensionDefinition = new ExtensionDefinition();
-        extensionDefinition.setExtensionClass(clazz);
+    public static ExtensionMetadata getExtensionDefinition(Class<?> clazz) {
+        ExtensionMetadata extensionMetadata = new ExtensionMetadata();
+        extensionMetadata.setExtensionClass(clazz);
         SPI spi = AnnotationUtils.getAnnotation(clazz, SPI.class);
         if (spi == null) {
             throw new IllegalArgumentException("extension [" + clazz.getName() + "] can't without annotation SPI");
         }
-        extensionDefinition.setExtensionName(spi.name());
-        extensionDefinition.setSingleton(spi.singleton());
-        return extensionDefinition;
+        extensionMetadata.setExtensionName(spi.name());
+        extensionMetadata.setSingleton(spi.singleton());
+        return extensionMetadata;
     }
 
 }

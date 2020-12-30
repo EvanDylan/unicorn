@@ -5,20 +5,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ExtensionDefinitionRegistry {
 
-    private static final Map<Class<?>, ExtensionDefinition> extensionDefinitionCache = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, ExtensionMetadata> extensionDefinitionCache = new ConcurrentHashMap<>();
 
-    public static ExtensionDefinition register(final Class<?> clazz) {
+    public static ExtensionMetadata register(final Class<?> clazz) {
         synchronized (extensionDefinitionCache) {
-            ExtensionDefinition extensionDefinition = extensionDefinitionCache.get(clazz);
-            if (extensionDefinition == null) {
-                extensionDefinition = ExtensionDefinitionUtils.getExtensionDefinition(clazz);
-                extensionDefinitionCache.put(clazz, extensionDefinition);
+            ExtensionMetadata extensionMetadata = extensionDefinitionCache.get(clazz);
+            if (extensionMetadata == null) {
+                extensionMetadata = ExtensionDefinitionUtils.getExtensionDefinition(clazz);
+                extensionDefinitionCache.put(clazz, extensionMetadata);
             }
-            return extensionDefinition;
+            return extensionMetadata;
         }
     }
 
-    public static ExtensionDefinition getExtensionDefinition(final Class<?> clazz) {
+    public static ExtensionMetadata getExtensionDefinition(final Class<?> clazz) {
         return extensionDefinitionCache.get(clazz);
     }
 }

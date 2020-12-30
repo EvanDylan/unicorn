@@ -2,7 +2,7 @@ package org.rhine.unicorn.core.extension;
 
 import com.google.common.base.Objects;
 
-public class ExtensionDefinition {
+public class ExtensionMetadata {
 
     private Class<?> interfaceClass;
 
@@ -48,7 +48,7 @@ public class ExtensionDefinition {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ExtensionDefinition that = (ExtensionDefinition) o;
+        ExtensionMetadata that = (ExtensionMetadata) o;
         return Objects.equal(interfaceClass, that.interfaceClass) &&
                 Objects.equal(extensionClass, that.extensionClass) &&
                 Objects.equal(extensionName, that.extensionName);

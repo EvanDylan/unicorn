@@ -1,16 +1,11 @@
 package org.rhine.unicorn.core.config;
 
 import com.google.common.collect.Lists;
-import org.rhine.unicorn.core.bootstrap.Configuration;
-import org.rhine.unicorn.core.bootstrap.GenericConfiguration;
 import org.rhine.unicorn.core.extension.ExtensionFactory;
 import org.rhine.unicorn.core.utils.CollectionUtils;
-import org.rhine.unicorn.core.utils.StringUtils;
-import org.rhine.unicorn.core.extension.ExtensionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 

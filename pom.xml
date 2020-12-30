@@ -24,6 +24,8 @@
         <jedis.version>3.3.0</jedis.version>
         <commons-jexl3.version>3.1</commons-jexl3.version>
         <spring-expression.version>5.2.9.RELEASE</spring-expression.version>
+        <hikaricp.version>3.4.5</hikaricp.version>
+        <cglib.version>3.3.0</cglib.version>
     </properties>
 
     <modules>
@@ -66,6 +68,22 @@
                 <artifactId>spring-expression</artifactId>
                 <version>${spring-expression.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2database.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>${cglib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${hikaricp.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -76,7 +94,6 @@
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.1.0</version>
                 </plugin>
-                <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.0.2</version>

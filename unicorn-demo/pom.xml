@@ -11,4 +11,22 @@
 
     <artifactId>unicorn-demo</artifactId>
     <name>unicorn-demo</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.rhine</groupId>
+            <artifactId>unicorn-expression-spring</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.rhine</groupId>
+            <artifactId>unicorn-storage-db</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.22</version>
+        </dependency>
+    </dependencies>
 </project>

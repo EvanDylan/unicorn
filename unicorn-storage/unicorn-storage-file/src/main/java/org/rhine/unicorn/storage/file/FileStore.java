@@ -1,5 +1,6 @@
 package org.rhine.unicorn.storage.file;
 
+import org.rhine.unicorn.core.bootstrap.Configuration;
 import org.rhine.unicorn.core.store.Message;
 import org.rhine.unicorn.core.store.ReadException;
 import org.rhine.unicorn.core.store.Store;
@@ -8,7 +9,7 @@ import org.rhine.unicorn.core.store.WriteException;
 public class FileStore implements Store {
 
     @Override
-    public void init() {
+    public void init(Configuration configuration) {
 
     }
 
@@ -18,7 +19,7 @@ public class FileStore implements Store {
     }
 
     @Override
-    public Message randomAccess(Message message) throws ReadException {
+    public Message randomAccess(String serviceName, String name, String key, Long expireMillis) throws ReadException {
         return null;
     }
 }

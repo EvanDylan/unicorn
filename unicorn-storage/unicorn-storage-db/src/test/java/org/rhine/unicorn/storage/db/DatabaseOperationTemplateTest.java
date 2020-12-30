@@ -36,7 +36,7 @@ public class DatabaseOperationTemplateTest {
         messagePO.setExpiredTimestamp(System.currentTimeMillis());
         messagePO.setExpiredTimestamp(System.currentTimeMillis());
         messagePO.setResponse("META-INF/unicorn".getBytes());
-        messagePO.setSystem("META-INF/unicorn");
+        messagePO.setServiceName("META-INF/unicorn");
         messagePO.setName("2");
         messagePO.setKey("1");
         Assert.assertTrue(template.insertMessage(messagePO));

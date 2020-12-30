@@ -8,7 +8,7 @@ public class CustomizeHandler implements ParserHandler {
 
     @Override
     public void handler(Properties properties, ParserContext parserContext) {
-        Configuration configuration = parserContext.getConfiguration();
-        System.out.println(configuration);
+//        Configuration configuration = parserContext.getConfiguration();
+//        System.out.println(configuration);
     }
 }

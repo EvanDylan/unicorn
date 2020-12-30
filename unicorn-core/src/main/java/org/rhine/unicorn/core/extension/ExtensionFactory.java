@@ -10,29 +10,29 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ExtensionFactory {
 
-    private static final Map<ExtensionDefinition, Object> extensionInstanceMap = new ConcurrentHashMap<>();
+    private static final Map<ExtensionMetadata, Object> extensionInstanceMap = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
     public static <T> T getInstance(final Class<?> clazz, final String name) {
         if (clazz == null) {
             throw new IllegalArgumentException("clazz parameter can't be null");
         }
-        ExtensionDefinition extensionDefinition;
+        ExtensionMetadata extensionMetadata;
         if (clazz.isInterface()) {
             Class<?> matchedExtensionClass = ExtensionLoader.loadExtensionClass(clazz, name);
-            extensionDefinition = ExtensionDefinitionRegistry.getExtensionDefinition(matchedExtensionClass);
+            extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(matchedExtensionClass);
         } else {
-            extensionDefinition = ExtensionDefinitionRegistry.getExtensionDefinition(clazz);
+            extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(clazz);
         }
 
-        if (!extensionDefinition.isSingleton()) {
-            return (T) ReflectUtils.newInstance(extensionDefinition.getExtensionClass());
+        if (!extensionMetadata.isSingleton()) {
+            return (T) ReflectUtils.newInstance(extensionMetadata.getExtensionClass());
         } else {
             synchronized (extensionInstanceMap) {
-                Object o = extensionInstanceMap.get(extensionDefinition);
+                Object o = extensionInstanceMap.get(extensionMetadata);
                 if (o == null) {
-                    o = ReflectUtils.newInstance(extensionDefinition.getExtensionClass());
-                    extensionInstanceMap.put(extensionDefinition, o);
+                    o = ReflectUtils.newInstance(extensionMetadata.getExtensionClass());
+                    extensionInstanceMap.put(extensionMetadata, o);
                 }
                 return (T) o;
             }

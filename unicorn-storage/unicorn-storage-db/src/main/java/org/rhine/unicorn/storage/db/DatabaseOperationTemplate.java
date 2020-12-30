@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.sql.*;
 
 public class DatabaseOperationTemplate {
@@ -20,21 +21,21 @@ public class DatabaseOperationTemplate {
 
     public static final String CREATE_TABLE_MYSQL_DIALECT = "CREATE TABLE " + TABLE_NAME + "(\n" +
             "  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-            "  `system` varchar(128) DEFAULT '',\n" +
+            "  `service_name` varchar(128) DEFAULT '',\n" +
             "  `name` varchar(128) NOT NULL,\n" +
             "  `key` varchar(128) NOT NULL,\n" +
             "  `response` blob,\n" +
-            "  `created_time` datetime NOT NULL,\n" +
-            "  `expired_time` datetime NOT NULL,\n" +
+            "  `created_time(3)` datetime NOT NULL,\n" +
+            "  `expired_time(3)` datetime NOT NULL,\n" +
             "  PRIMARY KEY (`id`),\n" +
             "  KEY `domain_value_index` (`name`,`key`) USING BTREE\n" +
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
-    private static final String INSERT_SQL = "INSERT INTO " + TABLE_NAME + " (`system`, `name`, `key`, `response`, `created_time`, `expired_time`) VALUES (?, ?, ?, ?, ?, ?);";
+    private static final String INSERT_SQL = "INSERT INTO " + TABLE_NAME + " (`service_name`, `name`, `key`, `response`, `created_time`, `expired_time`) VALUES (?, ?, ?, ?, ?, ?);";
 
-    private static final String QUERY_SQL = "SELECT * FROM " + TABLE_NAME + " WHERE `system` = ? and `name` = ? and `key` = ? ;";
+    private static final String QUERY_SQL = "SELECT * FROM " + TABLE_NAME + " WHERE `service_name` = ? and `name` = ? and `key` = ? and `expired_time` >= ? ;";
 
-    private static final String DELETE_SQL = "DELETE FROM " + TABLE_NAME + " WHERE `system` = ? and `name` = ? and `key` = ? ;";
+    private static final String DELETE_SQL = "DELETE FROM " + TABLE_NAME + " WHERE `service_name` = ? and `name` = ? and `key` = ? ;";
 
     private static final String DELETE_SQL_BY_ID = "DELETE FROM " + TABLE_NAME + " WHERE `id` = ? ;";
 
@@ -43,10 +44,14 @@ public class DatabaseOperationTemplate {
             @Override
             public Boolean doExecute(Connection connection) throws SQLException{
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.setString(1, messagePO.getSystem());
+                preparedStatement.setString(1, messagePO.getServiceName());
                 preparedStatement.setString(2, messagePO.getName());
                 preparedStatement.setString(3, messagePO.getKey());
-                preparedStatement.setBinaryStream(4, new ByteArrayInputStream(messagePO.getResponse()));
+                InputStream is = null;
+                if (messagePO.getResponse() != null) {
+                    is = new ByteArrayInputStream(messagePO.getResponse());
+                }
+                preparedStatement.setBinaryStream(4, is);
                 preparedStatement.setTimestamp(5, new Timestamp(messagePO.getCreatedTimestamp()));
                 preparedStatement.setTimestamp(6, new Timestamp(messagePO.getExpiredTimestamp()));
                 if (preparedStatement.executeUpdate() == 0) {
@@ -63,24 +68,25 @@ public class DatabaseOperationTemplate {
         });
     }
 
-    public MessagePO findMessage(String system, String name, String key) {
+    public MessagePO findMessage(String serviceName, String name, String key) {
         return execute(new Execute<MessagePO>() {
             @Override
             public MessagePO doExecute(Connection connection) throws SQLException {
-                if (StringUtils.isEmpty(system) || StringUtils.isEmpty(name) || StringUtils.isEmpty(key)) {
+                if (StringUtils.isEmpty(serviceName) || StringUtils.isEmpty(name) || StringUtils.isEmpty(key)) {
                     throw new ReadException("find message failed, " +
-                            "system:[ + " + system + " +] or name:[" + name + "] or key:[" + key + "] is null");
+                            "serviceName:[ + " + serviceName + " +] or name:[" + name + "] or key:[" + key + "] is null");
                 }
                 PreparedStatement preparedStatement = connection.prepareStatement(QUERY_SQL);
-                preparedStatement.setString(1, system);
+                preparedStatement.setString(1, serviceName);
                 preparedStatement.setString(2, name);
                 preparedStatement.setString(3, key);
+                preparedStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
                 preparedStatement.executeQuery();
                 ResultSet resultSet = preparedStatement.getResultSet();
                 if (resultSet.next()) {
                     MessagePO messagePO = new MessagePO();
                     messagePO.setId(resultSet.getLong("id"));
-                    messagePO.setSystem(resultSet.getString("system"));
+                    messagePO.setServiceName(resultSet.getString("service_name"));
                     messagePO.setName(resultSet.getString("name"));
                     messagePO.setKey(resultSet.getString("key"));
                     messagePO.setResponse(resultSet.getBytes("response"));
@@ -113,16 +119,16 @@ public class DatabaseOperationTemplate {
         });
     }
 
-    public boolean deleteMessage(String system, String name, String key) {
+    public boolean deleteMessage(String serviceName, String name, String key) {
         return execute(new Execute<Boolean>() {
             @Override
             public Boolean doExecute(Connection connection) throws SQLException {
-                if (StringUtils.isEmpty(system) || StringUtils.isEmpty(name) || StringUtils.isEmpty(key)) {
+                if (StringUtils.isEmpty(serviceName) || StringUtils.isEmpty(name) || StringUtils.isEmpty(key)) {
                     throw new ReadException("delete message failed, " +
-                            "system:[ + " + system + " +] or name:[" + name + "] or key:[" + key + "] is null");
+                            "serviceName:[ + " + serviceName + " +] or name:[" + name + "] or key:[" + key + "] is null");
                 }
                 PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL);
-                preparedStatement.setString(1, system);
+                preparedStatement.setString(1, serviceName);
                 preparedStatement.setString(2, name);
                 preparedStatement.setString(3, key);
                 return preparedStatement.executeUpdate() > 0;

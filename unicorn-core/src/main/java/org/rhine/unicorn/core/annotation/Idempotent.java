@@ -5,11 +5,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * declare annotated method or all of methods of class must be idempotent.
- * @see Ignore
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.METHOD})
 public @interface Idempotent {
 
     int duration() default 1;
@@ -17,10 +16,15 @@ public @interface Idempotent {
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
     /**
-     * default is qualified method name
+     * default qualified method name
      */
     String name() default "";
 
+    /**
+     * el expression
+     */
     String key() default "";
+
+    String duplicateBehavior() default "exception";
 
 }

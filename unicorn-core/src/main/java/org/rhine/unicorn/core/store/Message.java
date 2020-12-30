@@ -2,30 +2,27 @@ package org.rhine.unicorn.core.store;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class Message implements Serializable {
 
     private static final long serialVersionUID = 2112380405948142230L;
 
-    private String system;
+    private String serviceName;
 
     private String name;
 
     private String key;
 
-    private int duration;
-
-    private TimeUnit timeUnit;
+    private long expireMillis;
 
     private long storeTimestamp;
 
-    public String getSystem() {
-        return system;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setSystem(String system) {
-        this.system = system;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getName() {
@@ -44,20 +41,12 @@ public class Message implements Serializable {
         this.key = key;
     }
 
-    public int getDuration() {
-        return duration;
+    public long getExpireMillis() {
+        return expireMillis;
     }
 
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public TimeUnit getTimeUnit() {
-        return timeUnit;
-    }
-
-    public void setTimeUnit(TimeUnit timeUnit) {
-        this.timeUnit = timeUnit;
+    public void setExpireMillis(long expireMillis) {
+        this.expireMillis = expireMillis;
     }
 
     public long getStoreTimestamp() {
@@ -73,28 +62,26 @@ public class Message implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
-        return duration == message.duration &&
+        return expireMillis == message.expireMillis &&
                 storeTimestamp == message.storeTimestamp &&
-                Objects.equals(system, message.system) &&
+                Objects.equals(serviceName, message.serviceName) &&
                 Objects.equals(name, message.name) &&
-                Objects.equals(key, message.key) &&
-                timeUnit == message.timeUnit;
+                Objects.equals(key, message.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(system, name, key, duration, storeTimestamp, timeUnit);
+        return Objects.hash(serviceName, name, key, expireMillis, storeTimestamp);
     }
 
     @Override
     public String toString() {
         return "Message{" +
-                "system='" + system + '\'' +
+                "system='" + serviceName + '\'' +
                 ", name='" + name + '\'' +
                 ", key='" + key + '\'' +
-                ", duration=" + duration +
+                ", duration=" + expireMillis +
                 ", storeTimestamp=" + storeTimestamp +
-                ", timeUnit=" + timeUnit +
                 '}';
     }
 }
