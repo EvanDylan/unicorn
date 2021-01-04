@@ -1,7 +1,8 @@
 package org.rhine.unicorn.core.proxy;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
+
+import org.rhine.unicorn.core.imported.cglib.proxy.Enhancer;
+import org.rhine.unicorn.core.imported.cglib.proxy.MethodInterceptor;
 
 public class ProxyFactory {
 

@@ -17,7 +17,7 @@ public class ClassMetadata {
 
     private final Collection<Method> methods;
 
-    private Map<Method, IdempotentMetadata> methodIdempotentMetadataMap = new ConcurrentHashMap<>();
+    private Map<Method, IdempotenAnnotationtMetadata> methodIdempotentMetadataMap = new ConcurrentHashMap<>();
 
     public boolean isInterface() {
         return clazz.isInterface();
@@ -45,7 +45,11 @@ public class ClassMetadata {
         return clazz.isAnnotationPresent(annotationClass);
     }
 
-    public IdempotentMetadata getIdempotentMetadata(Method method) {
+    public boolean hasIdempotenAnnotationtMetadata(Method method) {
+        return methodIdempotentMetadataMap.containsKey(method);
+    }
+
+    public IdempotenAnnotationtMetadata getIdempotentMetadata(Method method) {
         return methodIdempotentMetadataMap.get(method);
     }
 
@@ -54,7 +58,7 @@ public class ClassMetadata {
         this.methods = Arrays.asList(clazz.getMethods());
         Collection<Method> matchedMethods = this.getMethodsWithAnnotation(Idempotent.class);
         for (Method matchedMethod : matchedMethods) {
-            methodIdempotentMetadataMap.put(matchedMethod, new IdempotentMetadata(matchedMethod));
+            methodIdempotentMetadataMap.put(matchedMethod, new IdempotenAnnotationtMetadata(matchedMethod));
         }
     }
 }

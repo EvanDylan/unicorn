@@ -1,6 +1,6 @@
 package org.rhine.unicorn.core.annotation;
 
-import net.sf.cglib.proxy.MethodProxy;
+import org.rhine.unicorn.core.imported.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 

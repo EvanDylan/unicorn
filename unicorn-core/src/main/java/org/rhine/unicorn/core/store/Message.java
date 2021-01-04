@@ -7,6 +7,8 @@ public class Message implements Serializable {
 
     private static final long serialVersionUID = 2112380405948142230L;
 
+    private long offset;
+
     private String serviceName;
 
     private String name;
@@ -16,6 +18,16 @@ public class Message implements Serializable {
     private long expireMillis;
 
     private long storeTimestamp;
+
+    private byte[] response;
+
+    public long getOffset() {
+        return offset;
+    }
+
+    public void setOffset(long offset) {
+        this.offset = offset;
+    }
 
     public String getServiceName() {
         return serviceName;
@@ -55,6 +67,14 @@ public class Message implements Serializable {
 
     public void setStoreTimestamp(long storeTimestamp) {
         this.storeTimestamp = storeTimestamp;
+    }
+
+    public Object getResponse() {
+        return response;
+    }
+
+    public void setResponse(byte[] response) {
+        this.response = response;
     }
 
     @Override

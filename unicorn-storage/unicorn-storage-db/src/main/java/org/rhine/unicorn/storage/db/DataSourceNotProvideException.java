@@ -4,6 +4,9 @@ public class DataSourceNotProvideException extends RuntimeException{
 
     private String message;
 
+    public DataSourceNotProvideException() {
+    }
+
     public DataSourceNotProvideException(String message) {
         this.message = message;
     }

@@ -1,6 +1,7 @@
 package org.rhine.unicorn.core.extension;
 
 import org.rhine.unicorn.core.utils.AnnotationUtils;
+import org.rhine.unicorn.core.utils.ReflectUtils;
 
 public class ExtensionDefinitionUtils {
 
@@ -13,6 +14,7 @@ public class ExtensionDefinitionUtils {
         }
         extensionMetadata.setExtensionName(spi.name());
         extensionMetadata.setSingleton(spi.singleton());
+        extensionMetadata.setInterfaceClass(ReflectUtils.getInterfaces(clazz));
         return extensionMetadata;
     }
 

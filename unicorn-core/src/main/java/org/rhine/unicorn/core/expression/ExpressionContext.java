@@ -1,7 +1,7 @@
 package org.rhine.unicorn.core.expression;
 
 import org.rhine.unicorn.core.meta.ClassMetadata;
-import org.rhine.unicorn.core.meta.IdempotentMetadata;
+import org.rhine.unicorn.core.meta.IdempotenAnnotationtMetadata;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -15,14 +15,14 @@ public class ExpressionContext {
 
     private final String expression;
 
-    private final IdempotentMetadata idempotentMetadata;
+    private final IdempotenAnnotationtMetadata idempotenAnnotationtMetadata;
 
     private final Map<String, Object> variables = new ConcurrentHashMap<>();
 
     private final ParameterNameResolver parameterNameResolver = new ParameterNameResolver();
 
-    public IdempotentMetadata getIdempotentMetadata() {
-        return idempotentMetadata;
+    public IdempotenAnnotationtMetadata getIdempotentMetadata() {
+        return idempotenAnnotationtMetadata;
     }
 
     public Map<String, Object> getVariables() {
@@ -33,7 +33,7 @@ public class ExpressionContext {
         return expression;
     }
 
-    public ExpressionContext(Method method, Object[] args, ClassMetadata classMetadata) {
+    public ExpressionContext(Method method, Object[] args, IdempotenAnnotationtMetadata idempotenAnnotationtMetadata) {
         this.method = method;
         this.args = args;
         if (args.length != 0) {
@@ -44,9 +44,9 @@ public class ExpressionContext {
                 variables.put(paramName, value);
             }
         }
-        this.idempotentMetadata = classMetadata.getIdempotentMetadata(method);
-        if (this.idempotentMetadata != null) {
-            this.expression = this.idempotentMetadata.getKey();
+        this.idempotenAnnotationtMetadata = idempotenAnnotationtMetadata;
+        if (this.idempotenAnnotationtMetadata != null) {
+            this.expression = this.idempotenAnnotationtMetadata.getKey();
         } else {
             this.expression = null;
         }

@@ -1,7 +1,7 @@
 package org.rhine.unicorn.core.expression;
 
 import com.google.common.collect.Maps;
-import org.objectweb.asm.*;
+import org.rhine.unicorn.core.imported.asm.*;
 import org.rhine.unicorn.core.utils.ClassUtils;
 
 import java.lang.reflect.Method;

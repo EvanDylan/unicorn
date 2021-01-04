@@ -1,9 +1,12 @@
 package org.rhine.unicorn.core.utils;
 
 import com.google.common.collect.Lists;
+import org.rhine.unicorn.core.extension.Initializing;
+import org.rhine.unicorn.core.extension.ObjectFactoryRegister;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 
 public class ReflectUtils {
@@ -21,11 +24,23 @@ public class ReflectUtils {
         return coll;
     }
 
+    public static Class<?>[] getInterfaces(Class<?> clazz) {
+        return clazz.getInterfaces();
+    }
+
     public static Object newInstance(Class<?> clazz) {
         try {
             return clazz.newInstance();
         } catch (Exception e) {
             throw new RuntimeException("can't create instance of [" + clazz.getName() + "]", e);
+        }
+    }
+
+    public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
+        try {
+            return clazz.getDeclaredMethod(name, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
         }
     }
 }

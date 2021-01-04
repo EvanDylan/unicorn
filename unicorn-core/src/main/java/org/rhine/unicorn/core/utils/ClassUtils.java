@@ -1,13 +1,11 @@
 package org.rhine.unicorn.core.utils;
 
-import org.objectweb.asm.ClassReader;
+import org.rhine.unicorn.core.imported.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 public class ClassUtils {
 
