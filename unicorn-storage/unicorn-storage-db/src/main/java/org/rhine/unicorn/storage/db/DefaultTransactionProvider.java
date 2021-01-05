@@ -1,11 +1,13 @@
 package org.rhine.unicorn.storage.db;
 
 import org.rhine.unicorn.core.extension.Initializing;
+import org.rhine.unicorn.core.extension.SPI;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+@SPI
 public class DefaultTransactionProvider implements TransactionProvider, Initializing<DataSource> {
 
     private DataSource dataSource;
@@ -31,7 +33,7 @@ public class DefaultTransactionProvider implements TransactionProvider, Initiali
     }
 
     @Override
-    public void inject(DataSource object) {
-
+    public void inject(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

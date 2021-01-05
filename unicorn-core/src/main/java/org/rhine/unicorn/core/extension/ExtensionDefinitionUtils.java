@@ -15,6 +15,8 @@ public class ExtensionDefinitionUtils {
         extensionMetadata.setExtensionName(spi.name());
         extensionMetadata.setSingleton(spi.singleton());
         extensionMetadata.setInterfaceClass(ReflectUtils.getInterfaces(clazz));
+        extensionMetadata.setExtensionClassDeclaredMethods(ReflectUtils.getDeclaredMethods(clazz, true));
+        extensionMetadata.setOrder(spi.order());
         return extensionMetadata;
     }
 

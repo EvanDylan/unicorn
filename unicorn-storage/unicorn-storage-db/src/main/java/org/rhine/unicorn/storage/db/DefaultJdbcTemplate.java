@@ -1,6 +1,7 @@
 package org.rhine.unicorn.storage.db;
 
 import org.rhine.unicorn.core.extension.Initializing;
+import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.store.Message;
 import org.rhine.unicorn.core.store.ReadException;
 import org.rhine.unicorn.core.store.WriteException;
@@ -11,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@SPI
 public class DefaultJdbcTemplate implements JdbcTemplate, Initializing<TransactionProvider> {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultJdbcTemplate.class);

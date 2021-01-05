@@ -1,8 +1,10 @@
 package org.rhine.unicorn.demo;
 
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.rhine.unicorn.core.annotation.Idempotent;
 import org.rhine.unicorn.core.bootstrap.Configuration;
 
+import javax.sql.DataSource;
 import java.util.concurrent.TimeUnit;
 
 public class UserService {
@@ -14,6 +16,9 @@ public class UserService {
 
     public static void main(String[] args) {
         Configuration configuration = new Configuration();
+        DataSource dataSource = new MysqlDataSource();
+        configuration.register(dataSource);
+        configuration.init();
         UserService userService = (UserService) configuration.getProxyObject(UserService.class);
         userService.newUser(1L);
         System.out.println();

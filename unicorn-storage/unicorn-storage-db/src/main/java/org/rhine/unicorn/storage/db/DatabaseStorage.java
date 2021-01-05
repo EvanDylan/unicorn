@@ -45,6 +45,6 @@ public class DatabaseStorage implements Storage, Initializing<JdbcTemplate> {
 
     @Override
     public void inject(JdbcTemplate object) {
-
+        this.jdbcTemplate = object;
     }
 }

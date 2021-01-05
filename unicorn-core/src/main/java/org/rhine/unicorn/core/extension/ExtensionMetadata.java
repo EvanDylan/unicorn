@@ -1,7 +1,6 @@
 package org.rhine.unicorn.core.extension;
 
 import com.google.common.base.Objects;
-import org.rhine.unicorn.core.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -15,11 +14,11 @@ public class ExtensionMetadata {
 
     private Collection<Method> extensionClassDeclaredMethods;
 
-    private Class<?> injectClass;
-
     private String extensionName;
 
     private boolean singleton;
+
+    private int order;
 
     public Collection<Class<?>> getInterfaceClass() {
         return interfaceClass;
@@ -37,8 +36,12 @@ public class ExtensionMetadata {
         this.extensionClass = extensionClass;
     }
 
-    public Class<?> getInjectClass() {
-        return injectClass;
+    public Collection<Method> getExtensionClassDeclaredMethods() {
+        return extensionClassDeclaredMethods;
+    }
+
+    public void setExtensionClassDeclaredMethods(Collection<Method> extensionClassDeclaredMethods) {
+        this.extensionClassDeclaredMethods = extensionClassDeclaredMethods;
     }
 
     public String getExtensionName() {
@@ -57,7 +60,15 @@ public class ExtensionMetadata {
         this.singleton = singleton;
     }
 
-    public boolean needInitializing() {
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    public boolean shouldInitializing() {
         return interfaceClass.contains(Initializing.class);
     }
 

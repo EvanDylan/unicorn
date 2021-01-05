@@ -7,7 +7,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SPI {
 
-    String name() default "";
+    String name() default "default";
 
     boolean singleton() default true;
+
+    int order() default 0;
 }

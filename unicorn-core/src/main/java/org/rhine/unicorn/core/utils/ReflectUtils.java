@@ -1,13 +1,13 @@
 package org.rhine.unicorn.core.utils;
 
 import com.google.common.collect.Lists;
-import org.rhine.unicorn.core.extension.Initializing;
-import org.rhine.unicorn.core.extension.ObjectFactoryRegister;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public class ReflectUtils {
 
@@ -42,5 +42,15 @@ public class ReflectUtils {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Collection<Method> getDeclaredMethods(Class<?> clazz, boolean filterBridge) {
+        List<Method> collection = new ArrayList(Arrays.asList(clazz.getDeclaredMethods()));
+        for (int i = collection.size() - 1; i >= 0; i--) {
+            if (filterBridge && collection.get(i).isBridge()) {
+                collection.remove(i);
+            }
+        }
+        return collection;
     }
 }
