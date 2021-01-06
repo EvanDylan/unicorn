@@ -46,7 +46,7 @@ public class Configuration {
         }
     }
 
-    public void register(Object o) {
+    public void register(String beanName, Object o) {
         ExtensionFactory.INSTANCE.register(o);
     }
 
