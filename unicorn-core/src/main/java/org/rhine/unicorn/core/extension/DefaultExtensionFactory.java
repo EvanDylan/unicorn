@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @SPI
 public class DefaultExtensionFactory implements ExtensionFactory {
 
+    public static final DefaultExtensionFactory INSTANCE = new DefaultExtensionFactory();
+
     private final Map<ExtensionMetadata, Object> extensionInstanceMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Object> singletonObjects = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Object> singletonInCreation = new ConcurrentHashMap<>();
@@ -21,29 +23,27 @@ public class DefaultExtensionFactory implements ExtensionFactory {
         if (clazz == null) {
             throw new IllegalArgumentException("clazz parameter can't be null");
         }
-        if (internalClass(clazz)) {
-            ExtensionMetadata extensionMetadata;
-            if (clazz.isInterface()) {
-                Class<?> matchedExtensionClass = ExtensionLoader.loadExtensionClass(clazz, spiName);
-                extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(matchedExtensionClass);
-            } else {
-                extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(clazz);
-            }
-            return (T) doGetInstance(extensionMetadata, extensionMetadata.isSingleton());
+        ExtensionMetadata extensionMetadata;
+        if (clazz.isInterface()) {
+            Class<?> matchedExtensionClass = ExtensionLoader.loadExtensionClass(clazz, spiName);
+            extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(matchedExtensionClass);
         } else {
-            return (T) singletonObjects.get(clazz.getName());
+            extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(clazz);
         }
+        return (T) doGetInstance(extensionMetadata, extensionMetadata.isSingleton());
     }
 
     @Override
     public <T> T getInstance(final Class<T> clazz) {
+        if (!internalClass(clazz)) {
+            return (T) resolveDependencyBean(clazz);
+        }
         return this.getInstance(clazz, "default");
     }
 
     @Override
     public void register(Object o) {
-        String beanName = o.getClass().getName();
-        singletonObjects.put(beanName, o);
+        singletonObjects.put(o.getClass().getName(), o);
     }
 
     private Object doGetInstance(final ExtensionMetadata extensionMetadata, boolean singleton) {
@@ -95,5 +95,17 @@ public class DefaultExtensionFactory implements ExtensionFactory {
 
     private boolean internalClass(Class<?> clazz) {
         return clazz.getName().contains(INTERNAL_CLASS_PATH);
+    }
+
+    private Object resolveDependencyBean(Class<?> clazz) {
+        Object object = singletonObjects.get(clazz.getName());
+        if (object == null) {
+            for (Object value : singletonObjects.values()) {
+                if (clazz.isInstance(value)) {
+                    object = value;
+                }
+            }
+        }
+        return object;
     }
 }
