@@ -25,6 +25,11 @@ public @interface Idempotent {
      */
     String key() default "";
 
-    String duplicateBehavior() default "exception";
+    /**
+     * default idempotent return
+     * @see org.rhine.unicorn.core.annotation.IdempotentReturnWhenDuplicateRequestHandler
+     * @see org.rhine.unicorn.core.annotation.ThrowExceptionWhenDuplicateRequestHandler
+     */
+    String duplicateBehavior() default "default";
 
 }

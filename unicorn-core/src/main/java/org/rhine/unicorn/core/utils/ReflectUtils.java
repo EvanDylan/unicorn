@@ -4,10 +4,7 @@ import com.google.common.collect.Lists;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class ReflectUtils {
 
@@ -45,12 +42,20 @@ public class ReflectUtils {
     }
 
     public static Collection<Method> getDeclaredMethods(Class<?> clazz, boolean filterBridge) {
-        List<Method> collection = new ArrayList(Arrays.asList(clazz.getDeclaredMethods()));
+        List<Method> collection = new ArrayList<>(Arrays.asList(clazz.getDeclaredMethods()));
         for (int i = collection.size() - 1; i >= 0; i--) {
             if (filterBridge && collection.get(i).isBridge()) {
                 collection.remove(i);
             }
         }
         return collection;
+    }
+
+    public static Method getFirstMatchedMethod(Collection<Method> methods, String methodName) {
+        return methods.stream().filter(method -> Objects.equals(methodName, method.getName())).findFirst().orElse(null);
+    }
+
+    public static boolean voidReturnType(Method method) {
+        return method.getReturnType() == Void.TYPE;
     }
 }

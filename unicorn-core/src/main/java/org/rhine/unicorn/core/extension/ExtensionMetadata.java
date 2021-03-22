@@ -69,7 +69,7 @@ public class ExtensionMetadata {
     }
 
     public boolean shouldInitializing() {
-        return interfaceClass.contains(Initializing.class);
+        return interfaceClass.contains(LazyInitializing.class);
     }
 
     @Override

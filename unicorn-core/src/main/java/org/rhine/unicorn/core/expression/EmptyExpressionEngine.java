@@ -6,12 +6,12 @@ import org.rhine.unicorn.core.utils.StringUtils;
 import java.util.Arrays;
 import java.util.Map;
 
-public abstract class EmptyExpressionParser implements ExpressionParser {
+public abstract class EmptyExpressionEngine implements ExpressionEngine {
 
     private static final String EMPTY_STRING = "";
 
     @Override
-    public Object parse(ExpressionContext context) {
+    public Object evaluate(ExpressionContext context) {
         if (StringUtils.isEmpty(context.getExpression())) {
             Map<String, Object> variables = context.getVariables();
             if (MapUtils.isEmpty(variables)) {

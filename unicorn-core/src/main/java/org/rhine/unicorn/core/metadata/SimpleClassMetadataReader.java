@@ -1,4 +1,4 @@
-package org.rhine.unicorn.core.meta;
+package org.rhine.unicorn.core.metadata;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

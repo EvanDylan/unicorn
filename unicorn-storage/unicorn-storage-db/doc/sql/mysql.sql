@@ -1,9 +1,11 @@
-CREATE TABLE `message`
+CREATE TABLE `record`
 (
     `id`           bigint(20)   NOT NULL AUTO_INCREMENT,
+    `flag`         bigint(20)   NOT NULL,
     `service_name` varchar(128) DEFAULT '',
     `name`         varchar(128) NOT NULL,
     `key`          varchar(128) NOT NULL,
+    `class_name`   varchar(256) DEFAULT '',
     `response`     blob,
     `created_time` datetime(3)  NOT NULL,
     `expired_time` datetime(3)  NOT NULL,

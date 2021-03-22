@@ -2,10 +2,10 @@ package org.rhine.unicorn.core.store;
 
 public interface Storage {
 
-    long write(Message message) throws WriteException;
+    long write(Record record) throws WriteException;
 
-    Message read(String serviceName, String name, String key, Long expireMillis) throws ReadException;
+    Record read(String serviceName, String name, String key) throws ReadException;
 
-    long writeIfAbsent(Message message) throws WriteException, ReadException;
+    long update(Record record) throws WriteException, ReadException;
 
 }

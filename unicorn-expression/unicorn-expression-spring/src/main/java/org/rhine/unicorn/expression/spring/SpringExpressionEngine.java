@@ -1,6 +1,6 @@
 package org.rhine.unicorn.expression.spring;
 
-import org.rhine.unicorn.core.expression.EmptyExpressionParser;
+import org.rhine.unicorn.core.expression.EmptyExpressionEngine;
 import org.rhine.unicorn.core.expression.ExpressionContext;
 import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.utils.MapUtils;
@@ -12,7 +12,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import java.util.Map;
 
 @SPI(name = "spring")
-public class SpringExpressionParser extends EmptyExpressionParser {
+public class SpringExpressionEngine extends EmptyExpressionEngine {
 
     @Override
     public Object doParse(ExpressionContext context) {

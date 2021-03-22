@@ -3,11 +3,23 @@ package org.rhine.unicorn.core.store;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Message implements Serializable {
+public class Record implements Serializable {
 
     private static final long serialVersionUID = 2112380405948142230L;
 
+    /**
+     * 消息在存储引擎中偏移地址
+     */
     private long offset;
+
+    /**
+     * 消息标志位
+     * <p>
+     *     1. 记录被拦截方式是否{@link java.lang.Void} 返回类型
+     *     2. 记录方法返回值序列化类型{@link org.rhine.unicorn.core.serialize.ProtostuffSerialization}
+     * </p>
+     */
+    private long flag;
 
     private String serviceName;
 
@@ -15,10 +27,24 @@ public class Message implements Serializable {
 
     private String key;
 
+    /**
+     * 过期时间
+     */
     private long expireMillis;
 
+    /**
+     * 存储时间戳
+     */
     private long storeTimestamp;
 
+    /**
+     * 被拦截方法返回类的全限定名
+     */
+    private String className;
+
+    /**
+     * 被拦截方法返回值序列化二进制数据
+     */
     private byte[] response;
 
     public long getOffset() {
@@ -27,6 +53,14 @@ public class Message implements Serializable {
 
     public void setOffset(long offset) {
         this.offset = offset;
+    }
+
+    public long getFlag() {
+        return flag;
+    }
+
+    public void setFlag(long flag) {
+        this.flag = flag;
     }
 
     public String getServiceName() {
@@ -69,7 +103,7 @@ public class Message implements Serializable {
         this.storeTimestamp = storeTimestamp;
     }
 
-    public Object getResponse() {
+    public byte[] getResponse() {
         return response;
     }
 
@@ -77,31 +111,45 @@ public class Message implements Serializable {
         this.response = response;
     }
 
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Message message = (Message) o;
-        return expireMillis == message.expireMillis &&
-                storeTimestamp == message.storeTimestamp &&
-                Objects.equals(serviceName, message.serviceName) &&
-                Objects.equals(name, message.name) &&
-                Objects.equals(key, message.key);
+        Record record = (Record) o;
+        return offset == record.offset &&
+                flag == record.flag &&
+                expireMillis == record.expireMillis &&
+                storeTimestamp == record.storeTimestamp &&
+                Objects.equals(serviceName, record.serviceName) &&
+                Objects.equals(name, record.name) &&
+                Objects.equals(key, record.key) &&
+                Objects.equals(className, record.className);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(serviceName, name, key, expireMillis, storeTimestamp);
+        return Objects.hash(offset, flag, serviceName, name, key, expireMillis, storeTimestamp, className);
     }
 
     @Override
     public String toString() {
         return "Message{" +
-                "system='" + serviceName + '\'' +
+                "offset=" + offset +
+                ", flag=" + flag +
+                ", serviceName='" + serviceName + '\'' +
                 ", name='" + name + '\'' +
                 ", key='" + key + '\'' +
-                ", duration=" + expireMillis +
+                ", expireMillis=" + expireMillis +
                 ", storeTimestamp=" + storeTimestamp +
+                ", className='" + className + '\'' +
                 '}';
     }
 }

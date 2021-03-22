@@ -2,17 +2,17 @@ package org.rhine.unicorn.core.bootstrap;
 
 import org.rhine.unicorn.core.config.Config;
 import org.rhine.unicorn.core.config.DefaultConfig;
-import org.rhine.unicorn.core.expression.ExpressionParser;
+import org.rhine.unicorn.core.expression.ExpressionEngine;
 import org.rhine.unicorn.core.extension.ExtensionFactory;
-import org.rhine.unicorn.core.meta.ClassMetadata;
-import org.rhine.unicorn.core.meta.DefaultScanner;
-import org.rhine.unicorn.core.meta.Scanner;
-import org.rhine.unicorn.core.proxy.IdempotentAnnotationInterceptor;
-import org.rhine.unicorn.core.proxy.ProxyFactory;
+import org.rhine.unicorn.core.metadata.ClassMetadataReader;
+import org.rhine.unicorn.core.metadata.DefaultScanner;
+import org.rhine.unicorn.core.metadata.Scanner;
+import org.rhine.unicorn.core.interceptor.ProxyFactory;
 import org.rhine.unicorn.core.store.Storage;
 import org.rhine.unicorn.core.utils.ClassUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -22,11 +22,29 @@ public class Configuration {
 
     private static final String CONFIGURATION_LOCATION = "unicorn.properties";
 
-    private final Properties properties;
+    private Properties properties;
     private Config config;
-    private ExpressionParser expressionParser;
+    private ExpressionEngine expressionEngine;
     private Storage storage;
     private Scanner scanner;
+    private ClassMetadataReader classMetadataReader;
+    private ProxyFactory proxyFactory;
+
+    public Config getConfig() {
+        return config;
+    }
+
+    public ExpressionEngine getExpressionParser() {
+        return expressionEngine;
+    }
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public Scanner getScanner() {
+        return scanner;
+    }
 
     public Object getValue(String key) {
         return this.config.getValue(key);
@@ -37,38 +55,38 @@ public class Configuration {
     }
 
     public Object getProxyObject(Class<?> clazz) {
-        ClassMetadata classMetadata = this.scanner.getClassMetadataReader().getClassMetadata(clazz);
-        try {
-            return ProxyFactory.createProxy(clazz,
-                    new IdempotentAnnotationInterceptor(clazz.newInstance(), this.config.getServiceName(), this.storage, this.expressionParser, classMetadata));
-        } catch (Exception e) {
-            throw new RuntimeException("new instance of [" + clazz.getName() + "] error", e);
-        }
-    }
-
-    public void register(Object o) {
-        ExtensionFactory.INSTANCE.register(o);
+        return proxyFactory.createProxy(clazz);
     }
 
     public Configuration() {
-        this.properties = new Properties();
-        try {
-            properties.load(ClassUtils.getClassLoader().getResourceAsStream(CONFIGURATION_LOCATION));
-        } catch (IOException e) {
-            throw new IllegalArgumentException("can't find properties config file with location [" + CONFIGURATION_LOCATION + "]");
-        }
-
+        init(loadDefaultProperties());
     }
 
     public Configuration(Properties properties) {
-        this.properties = properties;
+        init(properties);
     }
 
-    public void init() {
+    private Properties loadDefaultProperties() {
+        Properties properties = new Properties();
+        try {
+            InputStream is = ClassUtils.getClassLoader().getResourceAsStream(CONFIGURATION_LOCATION);
+            if (is != null) {
+                properties.load(is);
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("can't find properties config file with location [" + CONFIGURATION_LOCATION + "]");
+        }
+        return properties;
+    }
+
+    private void init(Properties properties) {
+        this.properties = properties;
         this.config = new DefaultConfig(properties);
         this.scanner = new DefaultScanner();
         this.scanner.scan(this.config.getPackageNames());
-        this.expressionParser = ExtensionFactory.INSTANCE.getInstance(ExpressionParser.class, this.config.getExpressionEngineType());
+        this.classMetadataReader = this.scanner.getClassMetadataReader();
+        this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class, this.config.getExpressionEngineType());
         this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class, this.config.getStoreType());
+        this.proxyFactory = ExtensionFactory.INSTANCE.getInstance(ProxyFactory.class);
     }
 }

@@ -1,4 +1,4 @@
-package org.rhine.unicorn.core.meta;
+package org.rhine.unicorn.core.metadata;
 
 import java.util.Collection;
 

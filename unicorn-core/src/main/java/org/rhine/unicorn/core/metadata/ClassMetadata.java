@@ -1,4 +1,4 @@
-package org.rhine.unicorn.core.meta;
+package org.rhine.unicorn.core.metadata;
 
 import com.google.common.collect.Sets;
 import org.rhine.unicorn.core.annotation.Idempotent;
@@ -16,8 +16,6 @@ public class ClassMetadata {
     private final Class<?> clazz;
 
     private final Collection<Method> methods;
-
-    private Map<Method, IdempotenAnnotationtMetadata> methodIdempotentMetadataMap = new ConcurrentHashMap<>();
 
     public boolean isInterface() {
         return clazz.isInterface();
@@ -45,20 +43,8 @@ public class ClassMetadata {
         return clazz.isAnnotationPresent(annotationClass);
     }
 
-    public boolean hasIdempotenAnnotationtMetadata(Method method) {
-        return methodIdempotentMetadataMap.containsKey(method);
-    }
-
-    public IdempotenAnnotationtMetadata getIdempotentMetadata(Method method) {
-        return methodIdempotentMetadataMap.get(method);
-    }
-
     public ClassMetadata(Class<?> clazz) {
         this.clazz = clazz;
         this.methods = Arrays.asList(clazz.getMethods());
-        Collection<Method> matchedMethods = this.getMethodsWithAnnotation(Idempotent.class);
-        for (Method matchedMethod : matchedMethods) {
-            methodIdempotentMetadataMap.put(matchedMethod, new IdempotenAnnotationtMetadata(matchedMethod));
-        }
     }
 }

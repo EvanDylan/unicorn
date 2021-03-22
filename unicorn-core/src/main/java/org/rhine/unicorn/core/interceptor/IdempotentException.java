@@ -1,4 +1,4 @@
-package org.rhine.unicorn.core.proxy;
+package org.rhine.unicorn.core.interceptor;
 
 public class IdempotentException extends RuntimeException {
 

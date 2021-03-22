@@ -1,6 +1,4 @@
-package org.rhine.unicorn.core.meta;
-
-import org.rhine.unicorn.core.meta.ClassMetadataReader;
+package org.rhine.unicorn.core.metadata;
 
 import java.util.Collection;
 

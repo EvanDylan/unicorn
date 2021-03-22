@@ -1,15 +1,17 @@
 package org.rhine.unicorn.storage.db;
 
-import org.rhine.unicorn.core.store.Message;
+import org.rhine.unicorn.core.store.Record;
 import org.rhine.unicorn.core.store.ReadException;
 import org.rhine.unicorn.core.store.WriteException;
 
+import java.util.Objects;
+
 public interface JdbcTemplate {
 
-    long insert(Object... args) throws WriteException;
+    Record query(Object... args) throws ReadException;
 
-    Message query(Object... args) throws ReadException;
+    long insert(Record record) throws WriteException;
 
-    long delete(Object... args) throws WriteException;
+    long update(Object... args) throws WriteException;
 
 }

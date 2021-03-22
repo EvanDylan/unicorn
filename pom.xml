@@ -18,12 +18,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <junit.version>4.11</junit.version>
         <slf4j-api.version>1.7.30</slf4j-api.version>
         <h2database.version>1.4.200</h2database.version>
         <jedis.version>3.3.0</jedis.version>
         <commons-jexl3.version>3.1</commons-jexl3.version>
-        <spring-expression.version>5.2.9.RELEASE</spring-expression.version>
+        <spring.version>5.2.9.RELEASE</spring.version>
+        <protostuff.version>1.7.2</protostuff.version>
+        <junit.version>4.11</junit.version>
         <hikaricp.version>3.4.5</hikaricp.version>
     </properties>
 
@@ -65,18 +66,35 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
-                <version>${spring-expression.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2database.version}</version>
-                <scope>test</scope>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-core</artifactId>
+                <version>${protostuff.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-runtime</artifactId>
+                <version>${protostuff.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>${hikaricp.version}</version>
+            </dependency>
+
+            <!-- only for test  -->
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2database.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

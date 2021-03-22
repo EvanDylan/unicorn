@@ -36,51 +36,53 @@ public class DefaultExtensionFactory implements ExtensionFactory {
     @Override
     public <T> T getInstance(final Class<T> clazz) {
         if (!internalClass(clazz)) {
-            return (T) resolveDependencyBean(clazz);
+            return resolveDependencyBean(clazz);
         }
         return this.getInstance(clazz, "default");
     }
 
     @Override
-    public void register(Object o) {
+    public void register(final Object o) {
         singletonObjects.put(o.getClass().getName(), o);
     }
 
-    private Object doGetInstance(final ExtensionMetadata extensionMetadata, boolean singleton) {
+    private Object doGetInstance(final ExtensionMetadata extensionMetadata, final boolean singleton) {
         Object object;
         String beanName = extensionMetadata.getExtensionClass().getName();
         if (singleton) {
-            // 没有依赖关系可直接初始化
             if (!extensionMetadata.shouldInitializing()) {
                 if (singletonObjects.get(beanName) == null) {
                     object = ReflectUtils.newInstance(extensionMetadata.getExtensionClass());
                     singletonObjects.put(beanName, object);
                 }
                 return singletonObjects.get(beanName);
-            }
-            // 发生循环依赖
-            if (singletonInCreation.containsKey(beanName)) {
-                object = singletonInCreation.remove(beanName);
-                earlySingletonObjects.put(beanName, object);
-                return object;
-            }
-            object = ReflectUtils.newInstance(extensionMetadata.getExtensionClass());
-            singletonInCreation.put(beanName, object);
-            Method injectMethod = extensionMetadata.getExtensionClassDeclaredMethods().stream()
-                    .filter(method -> method.getName().equals("inject")).findFirst()
-                    .orElseThrow(() -> new RuntimeException("[" + "beanName" + "] implements Initializing interface, but without inject method"));
-            Class<?> injectClassType = injectMethod.getParameterTypes()[0];
-            Object injectObject = singletonObjects.get(injectClassType.getName());
-            if (injectObject == null) {
-                injectObject = getInstance(injectClassType);
-            }
-            ((Initializing) object).inject(injectObject);
-            if (earlySingletonObjects.containsKey(beanName)) {
+            } else {
+                // current bean already been initializing
+                if (singletonInCreation.containsKey(beanName)) {
+                    object = singletonInCreation.remove(beanName);
+                    earlySingletonObjects.put(beanName, object);
+                    return object;
+                }
+                Object initObject = ReflectUtils.newInstance(extensionMetadata.getExtensionClass());
+                singletonInCreation.put(beanName, initObject);
+                Method injectMethod = ReflectUtils.getFirstMatchedMethod(extensionMetadata.getExtensionClassDeclaredMethods(), "inject");
+                if (injectMethod == null) {
+                    throw new RuntimeException("[" + "beanName" + "] implements Initializing interface, but without inject method");
+                }
+
+                // inject object
+                Class<?> injectClassType = injectMethod.getParameterTypes()[0];
+                Object injectObject = singletonObjects.get(injectClassType.getName());
+                if (initObject == null) {
+                    initObject = getInstance(injectClassType);
+                }
+                ((LazyInitializing) initObject).inject(initObject);
+
                 Object earlySingletonObject = earlySingletonObjects.remove(beanName);
-                earlySingletonObject = object;
+                earlySingletonObject = initObject;
                 singletonObjects.put(beanName, earlySingletonObject);
+                return initObject;
             }
-            return object;
         } else {
             synchronized (extensionInstanceMap) {
                 object = extensionInstanceMap.get(extensionMetadata);
@@ -97,7 +99,7 @@ public class DefaultExtensionFactory implements ExtensionFactory {
         return clazz.getName().contains(INTERNAL_CLASS_PATH);
     }
 
-    private Object resolveDependencyBean(Class<?> clazz) {
+    private <T> T resolveDependencyBean(Class<T> clazz) {
         Object object = singletonObjects.get(clazz.getName());
         if (object == null) {
             for (Object value : singletonObjects.values()) {
@@ -106,6 +108,6 @@ public class DefaultExtensionFactory implements ExtensionFactory {
                 }
             }
         }
-        return object;
+        return (T) object;
     }
 }

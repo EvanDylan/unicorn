@@ -1,1 +1,1 @@
-org.rhine.unicorn.storage.db.DefaultTransactionProvider
+org.rhine.unicorn.storage.db.JdbcTransactionProvider

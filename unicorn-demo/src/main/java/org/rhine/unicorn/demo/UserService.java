@@ -1,6 +1,7 @@
 package org.rhine.unicorn.demo;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.rhine.unicorn.core.annotation.Idempotent;
 import org.rhine.unicorn.core.bootstrap.Configuration;
 
@@ -15,10 +16,13 @@ public class UserService {
     }
 
     public static void main(String[] args) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/unicorn");
+        config.setUsername("root");
+        config.setPassword("JayEvan888266");
+        DataSource dataSource = new HikariDataSource(config);
+
         Configuration configuration = new Configuration();
-        DataSource dataSource = new MysqlDataSource();
-        configuration.register(dataSource);
-        configuration.init();
         UserService userService = (UserService) configuration.getProxyObject(UserService.class);
         userService.newUser(1L);
         System.out.println();

@@ -1,13 +1,10 @@
-package org.rhine.unicorn.core.meta;
+package org.rhine.unicorn.core.metadata;
 
-import org.rhine.unicorn.core.annotation.DuplicateBehaviorHandler;
 import org.rhine.unicorn.core.annotation.Idempotent;
-import org.rhine.unicorn.core.extension.ExtensionFactory;
-import org.rhine.unicorn.core.utils.StringUtils;
 
 import java.lang.reflect.Method;
 
-public class IdempotenAnnotationtMetadata {
+public class IdempotentAnnotationMetadata extends ClassMetadata {
 
     private final Method method;
 
@@ -20,8 +17,6 @@ public class IdempotenAnnotationtMetadata {
     private final String key;
 
     private final String duplicateBehavior;
-
-    private DuplicateBehaviorHandler duplicateBehaviorHandler;
 
     public Method getMethod() {
         return method;
@@ -43,17 +38,13 @@ public class IdempotenAnnotationtMetadata {
         return key;
     }
 
-    public DuplicateBehaviorHandler getDuplicateBehaviorHandler() {
-        return duplicateBehaviorHandler;
-    }
-
-    public IdempotenAnnotationtMetadata(Method method) {
+    public IdempotentAnnotationMetadata(Method method) {
+        super(method.getClass());
         this.method = method;
         this.idempotent = method.getAnnotation(Idempotent.class);
         this.remainingExpireMillis = idempotent.timeUnit().toMillis(idempotent.duration());
-        this.name = StringUtils.isEmpty(idempotent.name()) ? method.getName() : idempotent.name();
+        this.name = idempotent.name();
         this.key = idempotent.key();
         this.duplicateBehavior = idempotent.duplicateBehavior();
-        this.duplicateBehaviorHandler = ExtensionFactory.INSTANCE.getInstance(DuplicateBehaviorHandler.class, duplicateBehavior);
     }
 }

@@ -1,46 +1,45 @@
 package org.rhine.unicorn.storage.db;
 
 
-import org.rhine.unicorn.core.extension.Initializing;
+import org.rhine.unicorn.core.extension.LazyInitializing;
 import org.rhine.unicorn.core.extension.SPI;
-import org.rhine.unicorn.core.store.Message;
-import org.rhine.unicorn.core.store.ReadException;
-import org.rhine.unicorn.core.store.Storage;
-import org.rhine.unicorn.core.store.WriteException;
+import org.rhine.unicorn.core.store.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 
 @SPI(name = "db")
-public class DatabaseStorage implements Storage, Initializing<JdbcTemplate> {
+public class DatabaseStorage implements Storage, LazyInitializing<JdbcTemplate> {
+
+    private static final String VOID_KEY = "default";
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseStorage.class);
 
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public long write(Message message) throws WriteException {
-        if (message == null) {
-            throw new WriteException("message can't be null");
+    public long write(Record record) throws WriteException {
+        if (record == null) {
+            throw new WriteException("record can't be null");
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("store " + message.toString());
+            logger.debug("store " + record.toString());
         }
-        return jdbcTemplate.insert(message.getServiceName(), message.getName(), message.getKey(),
-                message.getResponse(), new Time(message.getStoreTimestamp()), new Timestamp(message.getExpireMillis()));
+        return jdbcTemplate.insert(record);
     }
 
     @Override
-    public Message read(String serviceName, String name, String key, Long expireMillis) throws ReadException {
-        return jdbcTemplate.query(serviceName, name, key, new Timestamp(expireMillis));
+    public Record read(String serviceName, String name, String key) throws ReadException {
+        return jdbcTemplate.query(serviceName, name, key == null ? VOID_KEY : key);
     }
 
     @Override
-    public long writeIfAbsent(Message message) throws WriteException, ReadException {
-        message = this.read(message.getServiceName(), message.getName(), message.getKey(), message.getExpireMillis());
-        return message == null ? 0 : this.write(message);
+    public long update(Record record) throws WriteException, ReadException {
+        if (RecordFlag.isVoidReturnTypeFlag(record.getFlag())) {
+            record.setKey(VOID_KEY);
+        }
+        return jdbcTemplate.update(record.getExpireMillis(), record.getOffset());
     }
 
     @Override
