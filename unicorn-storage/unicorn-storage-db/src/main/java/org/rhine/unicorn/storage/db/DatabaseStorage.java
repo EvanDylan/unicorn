@@ -30,8 +30,8 @@ public class DatabaseStorage implements Storage, LazyInitializing<JdbcTemplate> 
     }
 
     @Override
-    public Record read(String serviceName, String name, String key) throws ReadException {
-        return jdbcTemplate.query(serviceName, name, key == null ? VOID_KEY : key);
+    public Record read(String applicationName, String name, String key) throws ReadException {
+        return jdbcTemplate.query(applicationName, name, key == null ? VOID_KEY : key);
     }
 
     @Override

@@ -8,6 +8,13 @@ public interface Config {
     String STORE_TYPE_STRING = "unicorn.storetype";
     String SCAN_LOCATIONS_STRING = "unicorn.scanlocations";
     String EXPRESSION_ENGINE_TYPE_STRING = "unicorn.expressionengine";
+    String JDBC_URL = "unicorn.datasource.jdbcUrl";
+    String JDBC_USERNAME = "unicorn.datasource.username";
+    String JDBC_PASSWORD = "unicorn.datasource.password";
+    String JDBC_MAX_POOL_SIZE = "unicorn.datasource.maxPoolSize";
+    String JDBC_CONNECTION_TIMEOUT = "unicorn.datasource.connectionTimeout";
+
+    void setConfigProperties(Object o);
 
     String getServiceName();
 

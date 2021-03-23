@@ -1,14 +1,16 @@
 package org.rhine.unicorn.core.config;
 
+import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.utils.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+@SPI
 public class DefaultConfig implements Config {
 
-    private final Properties properties;
+    private Properties properties;
 
     public Object getValue(String key) {
         if (properties != null) {
@@ -54,7 +56,8 @@ public class DefaultConfig implements Config {
                 .splitWithCommaSeparator(getStringValue(SCAN_LOCATIONS_STRING)));
     }
 
-    public DefaultConfig(Properties properties) {
-        this.properties = properties;
+    @Override
+    public void setConfigProperties(Object o) {
+        this.properties = (Properties) o;
     }
 }

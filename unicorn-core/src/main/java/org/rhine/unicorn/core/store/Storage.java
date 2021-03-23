@@ -4,7 +4,7 @@ public interface Storage {
 
     long write(Record record) throws WriteException;
 
-    Record read(String serviceName, String name, String key) throws ReadException;
+    Record read(String applicationName, String name, String key) throws ReadException;
 
     long update(Record record) throws WriteException, ReadException;
 

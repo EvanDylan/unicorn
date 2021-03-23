@@ -1,10 +1,10 @@
 package org.rhine.unicorn.core.interceptor;
 
+import org.rhine.unicorn.core.annotation.DuplicateRequestHandler;
+import org.rhine.unicorn.core.bootstrap.Configuration;
 import org.rhine.unicorn.core.expression.ExpressionContext;
 import org.rhine.unicorn.core.expression.ExpressionEngine;
 import org.rhine.unicorn.core.extension.ExtensionFactory;
-import org.rhine.unicorn.core.imported.cglib.proxy.MethodProxy;
-import org.rhine.unicorn.core.metadata.ClassMetadata;
 import org.rhine.unicorn.core.metadata.IdempotentAnnotationMetadata;
 import org.rhine.unicorn.core.serialize.Serialization;
 import org.rhine.unicorn.core.store.Record;
@@ -16,20 +16,18 @@ import java.lang.reflect.Method;
 
 public class IdempotentAspectSupport {
 
-    private String serviceName;
-
-    private Class<?> targetClass;
-
-    private Object targetObject;
-
-    private ClassMetadata matchedClassMetadata;
-
+    private String applicationName;
     private ExpressionEngine expressionEngine;
+    private Serialization serialization;
+    private Storage storage;
 
-    private Serialization serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class);
-    private Storage storage = ExtensionFactory.INSTANCE.getInstance(Storage.class);
+    protected Record readRecord(Method method, Object[] args) {
+        IdempotentAnnotationMetadata metadata = getMetadata(method);
+        Object expressionValue = evaluateExpressionValue(method, args, metadata.getKey());
+        return this.storage.read(this.applicationName, metadata.getName(), String.valueOf(expressionValue));
+    }
 
-    private void record(Method method, Object[] args, MethodProxy proxy) throws Throwable {
+    protected void writeRecord(Method method, Object[] args, Record storedRecord, Object object) {
         IdempotentAnnotationMetadata metadata = getMetadata(method);
         Record record = new Record();
         long flag = 0;
@@ -37,16 +35,14 @@ public class IdempotentAspectSupport {
             flag = RecordFlag.settingFlag(flag, RecordFlag.VOID_RETURN_TYPE_FLAG);
         } else {
             flag = RecordFlag.settingFlag(flag, RecordFlag.SERIALIZE__PROTOBUF_FLAG);
-            Object expressionValue = evaluateExpressionValue(method, args, metadata.getKey());
-            record.setKey(String.valueOf(expressionValue));
-            record.setResponse(serialization.serialize(expressionValue));
+            record.setClassName(method.getReturnType().getName());
+            record.setResponse(serialization.serialize(object));
         }
+        Object expressionValue = evaluateExpressionValue(method, args, metadata.getKey());
+        record.setKey(String.valueOf(expressionValue));
         record.setFlag(flag);
-        record.setServiceName(this.serviceName);
-        record.setClassName(method.getDeclaringClass().getName());
+        record.setApplicationName(this.applicationName);
         record.setName(metadata.getName());
-
-        Record storedRecord = this.storage.read(this.serviceName, metadata.getName(), record.getKey());
 
         long currentTime = System.currentTimeMillis();
         if (storedRecord == null) {
@@ -60,15 +56,23 @@ public class IdempotentAspectSupport {
         }
     }
 
-    private Object evaluateExpressionValue(Method method, Object[] args, String expression) {
+    protected Object evaluateExpressionValue(Method method, Object[] args, String expression) {
         return this.expressionEngine.evaluate(new ExpressionContext(method, args, expression));
     }
 
-    private IdempotentAnnotationMetadata getMetadata(Method method) {
+    protected IdempotentAnnotationMetadata getMetadata(Method method) {
         return new IdempotentAnnotationMetadata(method);
     }
 
-    public Class<?> getTargetClass() {
-        return targetClass;
+    protected DuplicateRequestHandler duplicateRequestHandler(Method method) {
+        String duplicateBehavior = this.getMetadata(method).getDuplicateBehavior();
+        return ExtensionFactory.INSTANCE.getInstance(DuplicateRequestHandler.class, duplicateBehavior);
+    }
+
+    public IdempotentAspectSupport(Configuration configuration) {
+        this.applicationName = configuration.getConfig().getServiceName();
+        this.expressionEngine = configuration.getExpressionParser();
+        this.serialization = configuration.getSerialization();
+        this.storage = configuration.getStorage();
     }
 }

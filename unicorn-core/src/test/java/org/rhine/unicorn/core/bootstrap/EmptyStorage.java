@@ -15,7 +15,7 @@ public class EmptyStorage implements Storage {
     }
 
     @Override
-    public Record read(String serviceName, String name, String key) throws ReadException {
+    public Record read(String applicationName, String name, String key) throws ReadException {
         return null;
     }
 

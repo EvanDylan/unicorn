@@ -73,10 +73,10 @@ public class DefaultExtensionFactory implements ExtensionFactory {
                 // inject object
                 Class<?> injectClassType = injectMethod.getParameterTypes()[0];
                 Object injectObject = singletonObjects.get(injectClassType.getName());
-                if (initObject == null) {
-                    initObject = getInstance(injectClassType);
+                if (injectObject == null) {
+                    injectObject = getInstance(injectClassType);
                 }
-                ((LazyInitializing) initObject).inject(initObject);
+                ((LazyInitializing) initObject).inject(injectObject);
 
                 Object earlySingletonObject = earlySingletonObjects.remove(beanName);
                 earlySingletonObject = initObject;

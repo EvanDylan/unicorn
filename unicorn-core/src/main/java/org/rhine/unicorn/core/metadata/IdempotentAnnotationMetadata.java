@@ -1,6 +1,7 @@
 package org.rhine.unicorn.core.metadata;
 
 import org.rhine.unicorn.core.annotation.Idempotent;
+import org.rhine.unicorn.core.utils.StringUtils;
 
 import java.lang.reflect.Method;
 
@@ -38,12 +39,16 @@ public class IdempotentAnnotationMetadata extends ClassMetadata {
         return key;
     }
 
+    public String getDuplicateBehavior() {
+        return duplicateBehavior;
+    }
+
     public IdempotentAnnotationMetadata(Method method) {
-        super(method.getClass());
+        super(method.getDeclaringClass());
         this.method = method;
         this.idempotent = method.getAnnotation(Idempotent.class);
         this.remainingExpireMillis = idempotent.timeUnit().toMillis(idempotent.duration());
-        this.name = idempotent.name();
+        this.name = StringUtils.isEmpty(idempotent.name()) ? this.getClazz().getName() + "#" + method.getName() : idempotent.name();
         this.key = idempotent.key();
         this.duplicateBehavior = idempotent.duplicateBehavior();
     }

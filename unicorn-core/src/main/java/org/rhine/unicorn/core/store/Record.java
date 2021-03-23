@@ -21,7 +21,7 @@ public class Record implements Serializable {
      */
     private long flag;
 
-    private String serviceName;
+    private String applicationName;
 
     private String name;
 
@@ -63,12 +63,12 @@ public class Record implements Serializable {
         this.flag = flag;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getApplicationName() {
+        return applicationName;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public String getName() {
@@ -119,6 +119,10 @@ public class Record implements Serializable {
         this.className = className;
     }
 
+    public boolean hasExpired() {
+        return this.getExpireMillis() < System.currentTimeMillis();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -128,7 +132,7 @@ public class Record implements Serializable {
                 flag == record.flag &&
                 expireMillis == record.expireMillis &&
                 storeTimestamp == record.storeTimestamp &&
-                Objects.equals(serviceName, record.serviceName) &&
+                Objects.equals(applicationName, record.applicationName) &&
                 Objects.equals(name, record.name) &&
                 Objects.equals(key, record.key) &&
                 Objects.equals(className, record.className);
@@ -136,15 +140,15 @@ public class Record implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(offset, flag, serviceName, name, key, expireMillis, storeTimestamp, className);
+        return Objects.hash(offset, flag, applicationName, name, key, expireMillis, storeTimestamp, className);
     }
 
     @Override
     public String toString() {
-        return "Message{" +
+        return "Record{" +
                 "offset=" + offset +
                 ", flag=" + flag +
-                ", serviceName='" + serviceName + '\'' +
+                ", serviceName='" + applicationName + '\'' +
                 ", name='" + name + '\'' +
                 ", key='" + key + '\'' +
                 ", expireMillis=" + expireMillis +

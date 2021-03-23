@@ -6,7 +6,7 @@ import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 import org.rhine.unicorn.core.extension.SPI;
 
-@SPI(name = "protostuff")
+@SPI
 public class ProtostuffSerialization implements Serialization {
 
     @Override

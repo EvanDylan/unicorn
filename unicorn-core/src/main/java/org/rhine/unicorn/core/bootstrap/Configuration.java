@@ -1,13 +1,13 @@
 package org.rhine.unicorn.core.bootstrap;
 
 import org.rhine.unicorn.core.config.Config;
-import org.rhine.unicorn.core.config.DefaultConfig;
 import org.rhine.unicorn.core.expression.ExpressionEngine;
 import org.rhine.unicorn.core.extension.ExtensionFactory;
 import org.rhine.unicorn.core.metadata.ClassMetadataReader;
 import org.rhine.unicorn.core.metadata.DefaultScanner;
 import org.rhine.unicorn.core.metadata.Scanner;
 import org.rhine.unicorn.core.interceptor.ProxyFactory;
+import org.rhine.unicorn.core.serialize.Serialization;
 import org.rhine.unicorn.core.store.Storage;
 import org.rhine.unicorn.core.utils.ClassUtils;
 
@@ -22,11 +22,13 @@ public class Configuration {
 
     private static final String CONFIGURATION_LOCATION = "unicorn.properties";
 
-    private Properties properties;
+    public static Configuration INSTANCE;
+
     private Config config;
     private ExpressionEngine expressionEngine;
     private Storage storage;
     private Scanner scanner;
+    private Serialization serialization;
     private ClassMetadataReader classMetadataReader;
     private ProxyFactory proxyFactory;
 
@@ -55,7 +57,11 @@ public class Configuration {
     }
 
     public Object getProxyObject(Class<?> clazz) {
-        return proxyFactory.createProxy(clazz);
+        return proxyFactory.createProxy(clazz, this);
+    }
+
+    public Serialization getSerialization() {
+        return serialization;
     }
 
     public Configuration() {
@@ -80,13 +86,14 @@ public class Configuration {
     }
 
     private void init(Properties properties) {
-        this.properties = properties;
-        this.config = new DefaultConfig(properties);
+        this.config = ExtensionFactory.INSTANCE.getInstance(Config.class);
+        this.config.setConfigProperties(properties);
         this.scanner = new DefaultScanner();
         this.scanner.scan(this.config.getPackageNames());
         this.classMetadataReader = this.scanner.getClassMetadataReader();
         this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class, this.config.getExpressionEngineType());
         this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class, this.config.getStoreType());
+        this.serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class);
         this.proxyFactory = ExtensionFactory.INSTANCE.getInstance(ProxyFactory.class);
     }
 }

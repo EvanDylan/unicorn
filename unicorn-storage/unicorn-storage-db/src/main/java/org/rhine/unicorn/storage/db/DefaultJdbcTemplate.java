@@ -1,6 +1,5 @@
 package org.rhine.unicorn.storage.db;
 
-import org.rhine.unicorn.core.extension.LazyInitializing;
 import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.store.ReadException;
 import org.rhine.unicorn.core.store.Record;
@@ -12,13 +11,13 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 @SPI
-public class DefaultJdbcTemplate implements JdbcTemplate, LazyInitializing<DataSource> {
+public class DefaultJdbcTemplate implements JdbcTemplate {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultJdbcTemplate.class);
 
     private final DefaultSqlStatement defaultSqlStatement;
 
-    private DataSource dataSource;
+    private final DataSource dataSource = DataSourceBuilder.builderDataSource(new JdbcConfig());
 
     @Override
     public Record query(Object... args) {
@@ -31,11 +30,11 @@ public class DefaultJdbcTemplate implements JdbcTemplate, LazyInitializing<DataS
                 Record record = new Record();
                 record.setOffset(resultSet.getLong(1));
                 record.setFlag(resultSet.getLong(2));
-                record.setServiceName(resultSet.getString(3));
+                record.setApplicationName(resultSet.getString(3));
                 record.setName(resultSet.getString(4));
                 record.setKey(resultSet.getString(5));
-                record.setResponse(resultSet.getBytes(6));
-                record.setClassName(resultSet.getString(7));
+                record.setClassName(resultSet.getString(6));
+                record.setResponse(resultSet.getBytes(7));
                 record.setStoreTimestamp(resultSet.getTimestamp(8).getTime());
                 record.setExpireMillis(resultSet.getTimestamp(9).getTime());
                 return record;
@@ -63,7 +62,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate, LazyInitializing<DataS
         PreparedStatement preparedStatement = null;
         ResultSet resultSet= null;
         try {
-            Object[] args = {record.getFlag(), record.getServiceName(), record.getName(), record.getKey(),
+            Object[] args = {record.getFlag(), record.getApplicationName(), record.getName(), record.getKey(),
                 record.getClassName(), record.getResponse(), new Timestamp(record.getStoreTimestamp()),
                 new Timestamp(record.getExpireMillis())};
             preparedStatement = preparedStatement(this.defaultSqlStatement.getInsertSql(), true, args);
@@ -128,14 +127,6 @@ public class DefaultJdbcTemplate implements JdbcTemplate, LazyInitializing<DataS
             preparedStatement.setObject(i + 1, args[i]);
         }
         return preparedStatement;
-    }
-
-    @Override
-    public void inject(DataSource object) {
-        if (object == null) {
-            throw new DataSourceNotProvideException();
-        }
-        dataSource = object;
     }
 
     public DefaultJdbcTemplate() {

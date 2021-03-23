@@ -6,10 +6,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(ClassUtils.class);
+
+    private static final Map<String, Class<?>> CLASSES_CACHE = new ConcurrentHashMap<>();
 
     private static final String DOT = ".";
     private static final String CLASS_FILE_SUFFIX = ".class";
@@ -35,5 +39,20 @@ public class ClassUtils {
             logger.error("[" + clazz.getName() + "] getClassReader error", e);
         }
         return null;
+    }
+
+    public static Class<?> loadClass(String name) {
+        try {
+            if (CLASSES_CACHE.get(name) == null) {
+                synchronized (CLASSES_CACHE) {
+                    if (CLASSES_CACHE.get(name) == null) {
+                        CLASSES_CACHE.put(name, getClassLoader().loadClass(name));
+                    }
+                }
+            }
+            return CLASSES_CACHE.get(name);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("class with name [" + name + "] can't been load", e);
+        }
     }
 }

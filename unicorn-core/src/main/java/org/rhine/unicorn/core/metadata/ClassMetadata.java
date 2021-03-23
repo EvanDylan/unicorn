@@ -1,21 +1,22 @@
 package org.rhine.unicorn.core.metadata;
 
 import com.google.common.collect.Sets;
-import org.rhine.unicorn.core.annotation.Idempotent;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassMetadata {
 
     private final Class<?> clazz;
 
     private final Collection<Method> methods;
+
+    public Class<?> getClazz() {
+        return clazz;
+    }
 
     public boolean isInterface() {
         return clazz.isInterface();
