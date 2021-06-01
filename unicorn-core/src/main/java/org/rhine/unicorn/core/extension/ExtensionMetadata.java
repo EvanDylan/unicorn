@@ -1,6 +1,7 @@
 package org.rhine.unicorn.core.extension;
 
 import com.google.common.base.Objects;
+import org.rhine.unicorn.core.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -70,6 +71,10 @@ public class ExtensionMetadata {
 
     public boolean shouldInitializing() {
         return interfaceClass.contains(LazyInitializing.class);
+    }
+
+    public Method getInjectMethod() {
+        return ReflectUtils.getFirstMatchedMethod(getExtensionClassDeclaredMethods(), "inject");
     }
 
     @Override

@@ -11,4 +11,35 @@
 
     <artifactId>unicorn-spring</artifactId>
     <name>unicorn-spring</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.rhine</groupId>
+            <artifactId>unicorn-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.rhine</groupId>
+            <artifactId>unicorn-expression-spring</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.rhine</groupId>
+            <artifactId>unicorn-storage-db</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.rhine</groupId>
+            <artifactId>unicorn-storage-file</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.rhine</groupId>
+            <artifactId>unicorn-storage-redis</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+    </dependencies>
 </project>

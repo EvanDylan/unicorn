@@ -14,11 +14,11 @@ public class ExtensionLoader {
 
     private static final String EXTENSION_DIRECTORY = "META-INF/unicorn/";
 
-    private static final Map<Class<?>, TreeSet<ExtensionEntry>> interfaceWithExtensionEntries = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, List<ExtensionEntry>> interfaceWithExtensionEntries = new ConcurrentHashMap<>();
 
     public static Class<?> loadExtensionClass(final Class<?> clazz, final String spiName) {
-        loadExtensionClass(clazz);
-        TreeSet<ExtensionEntry> extensionEntries = interfaceWithExtensionEntries.get(clazz);
+        loadAllExtensionClass(clazz);
+        List<ExtensionEntry> extensionEntries = interfaceWithExtensionEntries.get(clazz);
         if (extensionEntries == null) {
             throw new IllegalArgumentException("can't find implements class [" + clazz.getName() + "]");
         }
@@ -28,17 +28,22 @@ public class ExtensionLoader {
                 .getImplementationClass();
     }
 
-    public static Class<?> loadExtensionClass(final Class<?> clazz) {
+    public static Class<?> loadFirstPriorityExtensionClass(final Class<?> clazz) {
+        return loadAllExtensionClass(clazz).stream().findFirst()
+                .orElseThrow(() -> new RuntimeException("[" + clazz.getName() + "] can't find matched implements extension class"));
+    }
+
+    public static List<Class<?>> loadAllExtensionClass(final Class<?> clazz) {
         if (!clazz.isInterface()) {
             throw new IllegalArgumentException("[" + clazz.getName() + "] is not interface");
         }
-        TreeSet<ExtensionEntry> extensionEntries = interfaceWithExtensionEntries.get(clazz);
+        List<ExtensionEntry> extensionEntries = interfaceWithExtensionEntries.get(clazz);
         if (CollectionUtils.isEmpty(extensionEntries)) {
             synchronized (interfaceWithExtensionEntries) {
                 try {
                     ClassLoader classLoader = findClassLoader();
                     Enumeration<URL> urls = classLoader.getResources(EXTENSION_DIRECTORY + clazz.getName());
-                    extensionEntries = new TreeSet<>();
+                    extensionEntries = new ArrayList<>();
                     while (urls.hasMoreElements()) {
                         Properties prop = new Properties();
                         URL url = urls.nextElement();
@@ -56,20 +61,21 @@ public class ExtensionLoader {
                             }
                         }
                     }
+                    extensionEntries.sort(new ExtensionEntryComparator());
                     interfaceWithExtensionEntries.put(clazz, extensionEntries);
                 } catch (IOException e) {
                     throw new IllegalArgumentException("Unable to load extension with directory [" + EXTENSION_DIRECTORY + "]", e);
                 }
             }
         }
-        return extensionEntries.first().implementationClass;
+        return extensionEntries.stream().map(ExtensionEntry::getImplementationClass).collect(Collectors.toList());
     }
 
     private static ClassLoader findClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
 
-    private static class ExtensionEntry implements Comparable<ExtensionEntry> {
+    private static class ExtensionEntry  {
 
         private final String extensionName;
         private final Class<?> interfaceClass;
@@ -82,11 +88,6 @@ public class ExtensionLoader {
 
         public Class<?> getImplementationClass() {
             return implementationClass;
-        }
-
-        @Override
-        public int compareTo(ExtensionEntry o) {
-            return Integer.compare(this.order, o.order) * -1;
         }
 
         @Override
@@ -105,10 +106,22 @@ public class ExtensionLoader {
 
         public ExtensionEntry(Class<?> interfaceClass, Class<?> implementationClass) {
             SPI annotation = AnnotationUtils.getAnnotation(implementationClass, SPI.class);
+            if (annotation == null) {
+                throw new IllegalImplementationException("[" + implementationClass.getName() + "] without annotation @SPI");
+            }
             this.extensionName = annotation.name();
             this.interfaceClass = interfaceClass;
             this.implementationClass = implementationClass;
             this.order = annotation.order();
         }
+    }
+
+    private static class ExtensionEntryComparator implements Comparator<ExtensionEntry> {
+
+        @Override
+        public int compare(ExtensionEntry o1, ExtensionEntry o2) {
+            return Integer.compare(o2.order, o1.order);
+        }
+
     }
 }

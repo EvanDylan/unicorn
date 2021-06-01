@@ -1,5 +1,7 @@
 package org.rhine.unicorn.storage.db;
 
+import org.rhine.unicorn.core.config.Config;
+import org.rhine.unicorn.core.extension.ExtensionFactory;
 import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.store.ReadException;
 import org.rhine.unicorn.core.store.Record;
@@ -16,8 +18,6 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(DefaultJdbcTemplate.class);
 
     private final DefaultSqlStatement defaultSqlStatement;
-
-    private final DataSource dataSource = DataSourceBuilder.builderDataSource(new JdbcConfig());
 
     @Override
     public Record query(Object... args) {
@@ -92,9 +92,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
         ResultSet resultSet= null;
         try {
             preparedStatement = preparedStatement(this.defaultSqlStatement.getUpdateSql(), false, args);
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getResultSet();
-            return resultSet.next() ? resultSet.getLong(1) : 0;
+            return preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new WriteException("write error", e);
         } finally {
@@ -119,9 +117,9 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
     private PreparedStatement preparedStatement(String sql, boolean returnGeneratedKeys, Object... args) throws SQLException {
         PreparedStatement preparedStatement;
         if (returnGeneratedKeys) {
-            preparedStatement = this.dataSource.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement = getDataSource().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         } else {
-            preparedStatement = this.dataSource.getConnection().prepareStatement(sql);
+            preparedStatement = getDataSource().getConnection().prepareStatement(sql);
         }
         for (int i = 0; i < args.length; i++) {
             preparedStatement.setObject(i + 1, args[i]);
@@ -131,5 +129,9 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
 
     public DefaultJdbcTemplate() {
         this.defaultSqlStatement = new DefaultSqlStatement();
+    }
+
+    private DataSource getDataSource() {
+        return ExtensionFactory.INSTANCE.getInstance(Config.class).getDataSource();
     }
 }

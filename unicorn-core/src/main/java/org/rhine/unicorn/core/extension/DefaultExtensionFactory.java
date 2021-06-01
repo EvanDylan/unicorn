@@ -3,111 +3,103 @@ package org.rhine.unicorn.core.extension;
 import org.rhine.unicorn.core.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @SPI
+@SuppressWarnings("unchecked")
 public class DefaultExtensionFactory implements ExtensionFactory {
 
-    public static final DefaultExtensionFactory INSTANCE = new DefaultExtensionFactory();
-
-    private final Map<ExtensionMetadata, Object> extensionInstanceMap = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Object> singletonObjects = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Object> singletonInCreation = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Object> earlySingletonObjects = new ConcurrentHashMap<>();
-
-    private static final String INTERNAL_CLASS_PATH = "org.rhine.unicorn";
+    private BeanContainer singletonObjectsContainer;
+    private final ConcurrentHashMap<Class<?>, Object> earlySingletonObjects = new ConcurrentHashMap<>();
 
     @Override
     public <T> T getInstance(final Class<T> clazz, final String spiName) {
         if (clazz == null) {
             throw new IllegalArgumentException("clazz parameter can't be null");
         }
-        ExtensionMetadata extensionMetadata;
-        if (clazz.isInterface()) {
-            Class<?> matchedExtensionClass = ExtensionLoader.loadExtensionClass(clazz, spiName);
-            extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(matchedExtensionClass);
-        } else {
-            extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(clazz);
+        if (!clazz.isInterface()) {
+            throw new IllegalArgumentException("[" +  clazz.getName() + "]" + " must be interface");
         }
-        return (T) doGetInstance(extensionMetadata, extensionMetadata.isSingleton());
+        Class<?> matchedExtensionClass = ExtensionLoader.loadExtensionClass(clazz, spiName);
+        ExtensionMetadata extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(matchedExtensionClass);
+        return (T) doGetInstance(extensionMetadata);
     }
 
     @Override
     public <T> T getInstance(final Class<T> clazz) {
-        if (!internalClass(clazz)) {
-            return resolveDependencyBean(clazz);
-        }
-        return this.getInstance(clazz, "default");
+        Class<?> matchedExtensionClass = ExtensionLoader.loadFirstPriorityExtensionClass(clazz);
+        ExtensionMetadata extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(matchedExtensionClass);
+        return (T) doGetInstance(extensionMetadata);
     }
 
     @Override
-    public void register(final Object o) {
-        singletonObjects.put(o.getClass().getName(), o);
+    public <T> List<T> getAllInstance(Class<T> clazz) {
+        List<Class<?>> classes = ExtensionLoader.loadAllExtensionClass(clazz);
+        List<T> list = new ArrayList<>();
+        for (Class<?> aClass : classes) {
+            ExtensionMetadata extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(aClass);
+            list.add((T) doGetInstance(extensionMetadata));
+        }
+        return list;
     }
 
-    private Object doGetInstance(final ExtensionMetadata extensionMetadata, final boolean singleton) {
+    private Object doGetInstance(final ExtensionMetadata metadata) {
         Object object;
-        String beanName = extensionMetadata.getExtensionClass().getName();
-        if (singleton) {
-            if (!extensionMetadata.shouldInitializing()) {
-                if (singletonObjects.get(beanName) == null) {
-                    object = ReflectUtils.newInstance(extensionMetadata.getExtensionClass());
-                    singletonObjects.put(beanName, object);
+        Class<?> clazz = metadata.getExtensionClass();
+        if (metadata.isSingleton()) {
+            object = getContainer().getBean(clazz);
+            if (object != null) {
+                return object;
+            }
+            // return early bean to avoid cyclic dependency
+            if (isSingletonCurrentlyInCreation(clazz)) {
+                return this.earlySingletonObjects.get(clazz);
+            }
+            synchronized (this.earlySingletonObjects) {
+                object = this.earlySingletonObjects.get(clazz);
+                if (object == null) {
+                    object = ReflectUtils.newInstance(clazz);
+                    earlySingletonObjects.put(clazz, object);
                 }
-                return singletonObjects.get(beanName);
-            } else {
-                // current bean already been initializing
-                if (singletonInCreation.containsKey(beanName)) {
-                    object = singletonInCreation.remove(beanName);
-                    earlySingletonObjects.put(beanName, object);
-                    return object;
-                }
-                Object initObject = ReflectUtils.newInstance(extensionMetadata.getExtensionClass());
-                singletonInCreation.put(beanName, initObject);
-                Method injectMethod = ReflectUtils.getFirstMatchedMethod(extensionMetadata.getExtensionClassDeclaredMethods(), "inject");
-                if (injectMethod == null) {
-                    throw new RuntimeException("[" + "beanName" + "] implements Initializing interface, but without inject method");
-                }
-
-                // inject object
-                Class<?> injectClassType = injectMethod.getParameterTypes()[0];
-                Object injectObject = singletonObjects.get(injectClassType.getName());
-                if (injectObject == null) {
-                    injectObject = getInstance(injectClassType);
-                }
-                ((LazyInitializing) initObject).inject(injectObject);
-
-                Object earlySingletonObject = earlySingletonObjects.remove(beanName);
-                earlySingletonObject = initObject;
-                singletonObjects.put(beanName, earlySingletonObject);
-                return initObject;
             }
         } else {
-            synchronized (extensionInstanceMap) {
-                object = extensionInstanceMap.get(extensionMetadata);
-                if (object == null) {
-                    object = ReflectUtils.newInstance(extensionMetadata.getExtensionClass());
-                    extensionInstanceMap.put(extensionMetadata, object);
-                }
+            object = ReflectUtils.newInstance(clazz);
+        }
+
+        if (metadata.shouldInitializing()) {
+            Method injectMethod = metadata.getInjectMethod();
+            if (injectMethod == null) {
+                throw new RuntimeException("[" + "beanName" + "] implements Initializing interface, but without inject method");
             }
+
+            // inject object
+            Class<?> injectClassType = injectMethod.getParameterTypes()[0];
+            Object injectObject = getContainer().getBean(injectClassType);
+            if (injectObject == null) {
+                injectObject = getInstance(injectClassType);
+            }
+            ((LazyInitializing) object).inject(injectObject);
+        }
+
+        earlySingletonObjects.remove(clazz);
+        if (metadata.isSingleton()) {
+            getContainer().register(clazz, object);
         }
         return object;
     }
 
-    private boolean internalClass(Class<?> clazz) {
-        return clazz.getName().contains(INTERNAL_CLASS_PATH);
+    private boolean isSingletonCurrentlyInCreation(Class<?> clazz) {
+        return earlySingletonObjects.get(clazz) != null;
     }
 
-    private <T> T resolveDependencyBean(Class<T> clazz) {
-        Object object = singletonObjects.get(clazz.getName());
-        if (object == null) {
-            for (Object value : singletonObjects.values()) {
-                if (clazz.isInstance(value)) {
-                    object = value;
-                }
-            }
+    @Override
+    public BeanContainer getContainer() {
+        if (singletonObjectsContainer == null) {
+            Class<?> matchedExtensionClass = ExtensionLoader.loadFirstPriorityExtensionClass(BeanContainer.class);
+            singletonObjectsContainer = (BeanContainer) ReflectUtils.newInstance(matchedExtensionClass);
         }
-        return (T) object;
+        return singletonObjectsContainer;
     }
 }

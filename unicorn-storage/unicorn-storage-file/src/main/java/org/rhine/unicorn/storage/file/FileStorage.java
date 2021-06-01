@@ -1,10 +1,12 @@
 package org.rhine.unicorn.storage.file;
 
+import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.store.Record;
 import org.rhine.unicorn.core.store.ReadException;
 import org.rhine.unicorn.core.store.Storage;
 import org.rhine.unicorn.core.store.WriteException;
 
+@SPI(name = "file")
 public class FileStorage implements Storage {
 
     @Override

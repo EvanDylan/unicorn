@@ -1,6 +1,5 @@
 package org.rhine.unicorn.core.interceptor;
 
-import org.rhine.unicorn.core.annotation.DuplicateRequestHandler;
 import org.rhine.unicorn.core.bootstrap.Configuration;
 import org.rhine.unicorn.core.expression.ExpressionContext;
 import org.rhine.unicorn.core.expression.ExpressionEngine;
@@ -8,7 +7,7 @@ import org.rhine.unicorn.core.extension.ExtensionFactory;
 import org.rhine.unicorn.core.metadata.IdempotentAnnotationMetadata;
 import org.rhine.unicorn.core.serialize.Serialization;
 import org.rhine.unicorn.core.store.Record;
-import org.rhine.unicorn.core.store.RecordFlag;
+import org.rhine.unicorn.core.utils.RecordFlagUtils;
 import org.rhine.unicorn.core.store.Storage;
 import org.rhine.unicorn.core.utils.ReflectUtils;
 
@@ -32,14 +31,16 @@ public class IdempotentAspectSupport {
         Record record = new Record();
         long flag = 0;
         if (ReflectUtils.voidReturnType(method)) {
-            flag = RecordFlag.settingFlag(flag, RecordFlag.VOID_RETURN_TYPE_FLAG);
+            flag = RecordFlagUtils.setReturnTypeFlag(flag);
         } else {
-            flag = RecordFlag.settingFlag(flag, RecordFlag.SERIALIZE__PROTOBUF_FLAG);
+            flag = RecordFlagUtils.setSerializationFlag(flag, serialization.id());
             record.setClassName(method.getReturnType().getName());
             record.setResponse(serialization.serialize(object));
         }
-        Object expressionValue = evaluateExpressionValue(method, args, metadata.getKey());
-        record.setKey(String.valueOf(expressionValue));
+        if (metadata.getKey() != null) {
+            Object expressionValue = evaluateExpressionValue(method, args, metadata.getKey());
+            record.setKey(String.valueOf(expressionValue));
+        }
         record.setFlag(flag);
         record.setApplicationName(this.applicationName);
         record.setName(metadata.getName());
@@ -70,9 +71,9 @@ public class IdempotentAspectSupport {
     }
 
     public IdempotentAspectSupport(Configuration configuration) {
-        this.applicationName = configuration.getConfig().getServiceName();
-        this.expressionEngine = configuration.getExpressionParser();
-        this.serialization = configuration.getSerialization();
+        this.applicationName = configuration.getConfig().getApplicationName();
+        this.expressionEngine = configuration.getExpressionEngine();
         this.storage = configuration.getStorage();
+        this.serialization = configuration.getSerialization();
     }
 }

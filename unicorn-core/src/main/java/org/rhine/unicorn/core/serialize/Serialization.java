@@ -2,7 +2,7 @@ package org.rhine.unicorn.core.serialize;
 
 public interface Serialization {
 
-    String contentType();
+    byte id();
 
     <T> T deserialize(byte[] bytes, Class<T> clazz);
 

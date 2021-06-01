@@ -5,6 +5,6 @@ import org.rhine.unicorn.core.bootstrap.Configuration;
 
 public interface ProxyFactory {
 
-    Object createProxy(Class<?> clazz, Configuration configuration);
+    Object createProxy(Object targetObject, Configuration configuration);
 
 }

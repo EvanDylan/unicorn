@@ -2,6 +2,7 @@ package org.rhine.unicorn.core.metadata;
 
 import com.google.common.collect.Lists;
 import org.rhine.unicorn.core.utils.ClassUtils;
+import org.rhine.unicorn.core.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,9 @@ public class DefaultScanner implements Scanner {
 
     @Override
     public void scan(final Collection<String> packageNames) {
+        if (CollectionUtils.isEmpty(packageNames)) {
+            return;
+        }
         for (String packageName : packageNames) {
             doScan(packageName);
         }

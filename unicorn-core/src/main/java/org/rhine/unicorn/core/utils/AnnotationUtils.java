@@ -2,6 +2,7 @@ package org.rhine.unicorn.core.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class AnnotationUtils {
 
@@ -11,6 +12,10 @@ public class AnnotationUtils {
 
     public static <A extends Annotation> boolean isAnnotationPresent(Method method, Class<A> annotationType) {
         return method.isAnnotationPresent(annotationType);
+    }
+
+    public static <A extends Annotation> boolean isAnnotationPresent(Class<A> annotationType, Method... methods) {
+        return Arrays.stream(methods).anyMatch(m -> isAnnotationPresent(m, annotationType));
     }
 
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationType) {

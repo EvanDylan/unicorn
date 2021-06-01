@@ -1,5 +1,8 @@
 package org.rhine.unicorn.core.annotation;
 
+import org.rhine.unicorn.core.interceptor.IdempotentReturnWhenDuplicateRequestHandler;
+import org.rhine.unicorn.core.interceptor.ThrowExceptionWhenDuplicateRequestHandler;
+
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
@@ -27,8 +30,8 @@ public @interface Idempotent {
 
     /**
      * default idempotent return
-     * @see org.rhine.unicorn.core.annotation.IdempotentReturnWhenDuplicateRequestHandler
-     * @see org.rhine.unicorn.core.annotation.ThrowExceptionWhenDuplicateRequestHandler
+     * @see IdempotentReturnWhenDuplicateRequestHandler
+     * @see ThrowExceptionWhenDuplicateRequestHandler
      */
     String duplicateBehavior() default "default";
 

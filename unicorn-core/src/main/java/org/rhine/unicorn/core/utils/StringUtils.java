@@ -22,4 +22,11 @@ public class StringUtils {
     public static String[] splitWithCommaSeparator(String string) {
         return split(string, ",");
     }
+
+    public static boolean contains(String string, String matchedChars) {
+        if (isNotEmpty(string) && isNotEmpty(matchedChars)) {
+            return string.contains(matchedChars);
+        }
+        return false;
+    }
 }

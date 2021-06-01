@@ -1,40 +1,25 @@
 package org.rhine.unicorn.core.config;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 public interface Config {
 
-    String SERVICE_NAME = "unicorn.servicename";
-    String STORE_TYPE_STRING = "unicorn.storetype";
-    String SCAN_LOCATIONS_STRING = "unicorn.scanlocations";
-    String EXPRESSION_ENGINE_TYPE_STRING = "unicorn.expressionengine";
-    String JDBC_URL = "unicorn.datasource.jdbcUrl";
-    String JDBC_USERNAME = "unicorn.datasource.username";
-    String JDBC_PASSWORD = "unicorn.datasource.password";
-    String JDBC_MAX_POOL_SIZE = "unicorn.datasource.maxPoolSize";
-    String JDBC_CONNECTION_TIMEOUT = "unicorn.datasource.connectionTimeout";
+    void init();
 
-    void setConfigProperties(Object o);
+    DataSource getDataSource();
 
-    String getServiceName();
+    String getApplicationName();
 
-    String getExpressionEngineType();
+    String getElParseEngine();
 
-    /**
-     * get store type
-     *
-     * @return store type
-     */
     String getStoreType();
 
-    /**
-     * location of will be scan
-     *
-     * @return the collection of package name
-     */
+    String getSerialization();
+
     List<String> getPackageNames();
 
-    Object getValue(String key);
+    <T> T getValue(String key, Class<T> targetType);
 
     String getStringValue(String key);
 }

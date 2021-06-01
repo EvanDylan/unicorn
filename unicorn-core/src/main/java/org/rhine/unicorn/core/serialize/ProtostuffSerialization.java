@@ -6,12 +6,14 @@ import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 import org.rhine.unicorn.core.extension.SPI;
 
-@SPI
+import static org.rhine.unicorn.core.serialize.SerializationConstants.SERIALIZE_PROTOBUF_FLAG;
+
+@SPI(name = "protostuff")
 public class ProtostuffSerialization implements Serialization {
 
     @Override
-    public String contentType() {
-        return "protostuff";
+    public byte id() {
+        return SERIALIZE_PROTOBUF_FLAG;
     }
 
     @Override

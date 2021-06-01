@@ -1,6 +1,5 @@
 package org.rhine.unicorn.core.interceptor;
 
-import org.rhine.unicorn.core.annotation.DuplicateRequestHandler;
 import org.rhine.unicorn.core.bootstrap.Configuration;
 import org.rhine.unicorn.core.imported.cglib.proxy.MethodInterceptor;
 import org.rhine.unicorn.core.imported.cglib.proxy.MethodProxy;
@@ -20,9 +19,9 @@ public class IdempotentAnnotationInterceptor extends IdempotentAspectSupport imp
         if (storedRecord != null && !storedRecord.hasExpired()) {
             DuplicateRequestHandler handler = this.duplicateRequestHandler(method);
             if (handler != null) {
-                return handler.handler(obj, method, args, proxy, storedRecord);
+                return handler.handler(method, args, storedRecord);
             }
-            logger.warn("can't not obtain handler with annotation information [{}]", this.getMetadata(method).toString());
+            throw new IdempotentException("can't not obtain handler with annotation information [" + this.getMetadata(method).toString() + "]");
         }
         Object object = proxy.invokeSuper(obj, args);
         this.writeRecord(method, args, storedRecord, object);

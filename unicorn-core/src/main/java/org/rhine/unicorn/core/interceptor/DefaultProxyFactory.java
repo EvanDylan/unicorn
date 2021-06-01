@@ -14,9 +14,9 @@ public class DefaultProxyFactory implements ProxyFactory {
     private static final int NOOP = 1;
 
     @Override
-    public Object createProxy(Class<?> targetClass, Configuration configuration) {
+    public Object createProxy(Object targetObject, Configuration configuration) {
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(targetClass);
+        enhancer.setSuperclass(targetObject.getClass());
         enhancer.setClassLoader(ClassUtils.getClassLoader());
         Callback[] callbacks = new Callback[] {
                 new IdempotentAnnotationInterceptor(configuration),

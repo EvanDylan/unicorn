@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.rhine.unicorn.springboot.autoconfigure.UnicornAutoConfiguration
+org.springframework.context.ApplicationContextInitializer=\
+org.rhine.unicorn.springboot.autoconfigure.SpringBeanContainerInitializer
