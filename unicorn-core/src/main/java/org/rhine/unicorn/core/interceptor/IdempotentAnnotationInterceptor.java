@@ -3,7 +3,7 @@ package org.rhine.unicorn.core.interceptor;
 import org.rhine.unicorn.core.bootstrap.Configuration;
 import org.rhine.unicorn.core.imported.cglib.proxy.MethodInterceptor;
 import org.rhine.unicorn.core.imported.cglib.proxy.MethodProxy;
-import org.rhine.unicorn.core.store.Record;
+import org.rhine.unicorn.core.store.RecordLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,16 +15,17 @@ public class IdempotentAnnotationInterceptor extends IdempotentAspectSupport imp
 
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        Record storedRecord = this.readRecord(method, args);
-        if (storedRecord != null && !storedRecord.hasExpired()) {
+        RecordLog recordLog = this.readRecord(method, args);
+        if (recordLog != null && !recordLog.hasExpired()) {
             DuplicateRequestHandler handler = this.duplicateRequestHandler(method);
-            if (handler != null) {
-                return handler.handler(method, args, storedRecord);
+            if (handler == null) {
+                throw new IdempotentException("can't not obtain handler with annotation information [" + this.getMetadata(method).toString() + "]");
             }
-            throw new IdempotentException("can't not obtain handler with annotation information [" + this.getMetadata(method).toString() + "]");
+            return handler.handler(method, args, recordLog);
+
         }
         Object object = proxy.invokeSuper(obj, args);
-        this.writeRecord(method, args, storedRecord, object);
+        this.writeRecord(method, args, recordLog, object);
         return object;
     }
 

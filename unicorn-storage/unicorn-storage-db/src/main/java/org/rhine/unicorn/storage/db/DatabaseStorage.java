@@ -3,8 +3,10 @@ package org.rhine.unicorn.storage.db;
 
 import org.rhine.unicorn.core.extension.LazyInitializing;
 import org.rhine.unicorn.core.extension.SPI;
-import org.rhine.unicorn.core.store.*;
-import org.rhine.unicorn.core.utils.RecordFlagUtils;
+import org.rhine.unicorn.core.store.ReadException;
+import org.rhine.unicorn.core.store.RecordLog;
+import org.rhine.unicorn.core.store.Storage;
+import org.rhine.unicorn.core.store.WriteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,24 +20,23 @@ public class DatabaseStorage implements Storage, LazyInitializing<JdbcTemplate> 
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public long write(Record record) throws WriteException {
+    public long write(RecordLog record) throws WriteException {
         if (record == null) {
             throw new WriteException("record can't be null");
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("store " + record.toString());
+            logger.debug("store " + record);
         }
-        return jdbcTemplate.insert(record);
+        if (record.hasOffset()) {
+            return jdbcTemplate.update(new Timestamp(record.getExpireMillis()), record.getOffset());
+        } else {
+            return jdbcTemplate.insert(record);
+        }
     }
 
     @Override
-    public Record read(String applicationName, String name, String key) throws ReadException {
+    public RecordLog read(String applicationName, String name, String key) throws ReadException {
         return jdbcTemplate.query(applicationName, name, key);
-    }
-
-    @Override
-    public long update(Record record) throws WriteException, ReadException {
-        return jdbcTemplate.update(new Timestamp(record.getExpireMillis()), record.getOffset());
     }
 
     @Override

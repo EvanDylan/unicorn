@@ -1,16 +1,18 @@
 package org.rhine.unicorn.core.store;
 
+import org.rhine.unicorn.core.utils.TimeUtils;
+
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Record implements Serializable {
+public class RecordLog implements Serializable {
 
     private static final long serialVersionUID = 2112380405948142230L;
 
     /**
      * 消息在存储引擎中偏移地址
      */
-    private long offset;
+    private long offset = -1;
 
     /**
      * 消息标志位
@@ -119,15 +121,19 @@ public class Record implements Serializable {
         this.className = className;
     }
 
+    public boolean hasOffset() {
+        return offset != -1;
+    }
+
     public boolean hasExpired() {
-        return this.getExpireMillis() < System.currentTimeMillis();
+        return this.getExpireMillis() < TimeUtils.getNow();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Record record = (Record) o;
+        RecordLog record = (RecordLog) o;
         return offset == record.offset &&
                 flag == record.flag &&
                 expireMillis == record.expireMillis &&

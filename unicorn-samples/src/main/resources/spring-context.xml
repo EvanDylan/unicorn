@@ -7,9 +7,10 @@
            http://www.rhine.org/schema/unicorn
            http://www.rhine.org/schema/unicorn.xsd">
 
-    <unicorn:config applicationName="samples" elParseEngine="spring" storeType="db" serialization="protostuff" dataSource="dataSource"/>
+    <unicorn:config applicationName="samples" elParseEngine="spring" storeType="db" serialization="protostuff" dataSource="unicornDataSource"/>
 
     <bean id="userService" class="org.rhine.unicorn.samples.common.UserService"/>
+
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
         <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/unicorn?characterEncoding=utf8&amp;useSSL=false&amp;allowMultiQueries=true" />

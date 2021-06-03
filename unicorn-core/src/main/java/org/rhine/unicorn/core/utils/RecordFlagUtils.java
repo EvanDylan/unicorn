@@ -1,7 +1,5 @@
 package org.rhine.unicorn.core.utils;
 
-import com.sun.org.apache.bcel.internal.generic.RETURN;
-
 public class RecordFlagUtils {
 
     public static final long FLAG_VOID_RETURN_TYPE = 0x1;

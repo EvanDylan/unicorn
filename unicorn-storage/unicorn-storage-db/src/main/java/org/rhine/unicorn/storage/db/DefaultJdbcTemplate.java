@@ -4,8 +4,12 @@ import org.rhine.unicorn.core.config.Config;
 import org.rhine.unicorn.core.extension.ExtensionFactory;
 import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.store.ReadException;
-import org.rhine.unicorn.core.store.Record;
+import org.rhine.unicorn.core.store.RecordLog;
 import org.rhine.unicorn.core.store.WriteException;
+import org.rhine.unicorn.storage.api.tx.Resource;
+import org.rhine.unicorn.storage.api.tx.TransactionManager;
+import org.rhine.unicorn.storage.db.tx.DataSourceProxy;
+import org.rhine.unicorn.storage.db.tx.JdbcTransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,15 +23,19 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
 
     private final DefaultSqlStatement defaultSqlStatement;
 
+    private final TransactionManager transactionManager;
+
     @Override
-    public Record query(Object... args) {
+    public RecordLog query(Object... args) {
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            preparedStatement = preparedStatement(this.defaultSqlStatement.getQuerySql(), args);
+            connection = getConnection();
+            preparedStatement = preparedStatement(connection, this.defaultSqlStatement.getQuerySql(), args);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                Record record = new Record();
+                RecordLog record = new RecordLog();
                 record.setOffset(resultSet.getLong(1));
                 record.setFlag(resultSet.getLong(2));
                 record.setApplicationName(resultSet.getString(3));
@@ -40,16 +48,17 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
                 return record;
             }
         } catch (SQLException e) {
+            logger.error("read record log error", e);
             throw new ReadException("read error", e);
         } finally {
             try {
                 if (preparedStatement != null) {
-                    preparedStatement.getConnection().close();
                     preparedStatement.close();
                 }
                 if (resultSet != null) {
                     resultSet.close();
                 }
+                releaseConnection(connection);
             } catch (Exception e) {
                 // ignore it
             }
@@ -58,28 +67,48 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
     }
 
     @Override
-    public long insert(Record record) {
+    public long insert(RecordLog record) {
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet= null;
         try {
+            connection = getConnection();
+            transactionManager.beginTransaction((Resource) connection);
             Object[] args = {record.getFlag(), record.getApplicationName(), record.getName(), record.getKey(),
                 record.getClassName(), record.getResponse(), new Timestamp(record.getStoreTimestamp()),
                 new Timestamp(record.getExpireMillis())};
-            preparedStatement = preparedStatement(this.defaultSqlStatement.getInsertSql(), true, args);
+            preparedStatement = preparedStatement(connection, this.defaultSqlStatement.getInsertSql(), true, args);
             preparedStatement.executeUpdate();
             resultSet = preparedStatement.getGeneratedKeys();
-            return resultSet.next() ? resultSet.getLong(1) : 0;
-        } catch (SQLException e) {
+            long offset = resultSet.next() ? resultSet.getLong(1) : -1;
+            if (offset < 0) {
+                logger.error("write record log failed recordLog[{}]", record.toString());
+                transactionManager.rollback();
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("write record log complete");
+                }
+                transactionManager.commit();
+            }
+            return offset;
+        } catch (Exception e) {
+            logger.error("write record log error recordLog[{}]", record.toString(), e);
+            try {
+                transactionManager.rollback();
+            } catch (Exception exception) {
+                logger.error("transaction rollback error recordLog[{}]", record.toString(), e);
+            }
             throw new WriteException("write error", e);
         } finally {
             try {
                 if (preparedStatement != null) {
-                    preparedStatement.getConnection().close();
                     preparedStatement.close();
                 }
                 if (resultSet != null) {
                     resultSet.close();
                 }
+                transactionManager.endTransaction();
+                releaseConnection(connection);
             } catch (Exception e) {
                 // ignore it
             }
@@ -88,38 +117,54 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
 
     @Override
     public long update(Object... args) throws WriteException {
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet= null;
         try {
-            preparedStatement = preparedStatement(this.defaultSqlStatement.getUpdateSql(), false, args);
-            return preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+            connection = getConnection();
+            transactionManager.beginTransaction((Resource) connection);
+            preparedStatement = preparedStatement(connection, this.defaultSqlStatement.getUpdateSql(), false, args);
+            int rows = preparedStatement.executeUpdate();
+            if (rows <= 0) {
+                logger.error("write record log failed recordLog args[]", args);
+                transactionManager.rollback();
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("write record log complete");
+                }
+                transactionManager.commit();
+            }
+            return (long) args[1];
+        } catch (Exception e) {
+            logger.error("write record log failed recordLog args[]", args);
+            try {
+                transactionManager.rollback();
+            } catch (Exception exception) {
+                logger.error("write record log failed recordLog args[]", args);
+            }
             throw new WriteException("write error", e);
         } finally {
             try {
                 if (preparedStatement != null) {
-                    preparedStatement.getConnection().close();
                     preparedStatement.close();
                 }
-                if (resultSet != null) {
-                    resultSet.close();
-                }
+                transactionManager.endTransaction();
+                releaseConnection(connection);
             } catch (Exception e) {
                 // ignore it
             }
         }
     }
 
-    private PreparedStatement preparedStatement(String sql, Object... args) throws SQLException {
-        return preparedStatement(sql, false, args);
+    private PreparedStatement preparedStatement(Connection connection, String sql, Object... args) throws SQLException {
+        return preparedStatement(connection, sql, false, args);
     }
 
-    private PreparedStatement preparedStatement(String sql, boolean returnGeneratedKeys, Object... args) throws SQLException {
+    private PreparedStatement preparedStatement(Connection connection, String sql, boolean returnGeneratedKeys, Object... args) throws SQLException {
         PreparedStatement preparedStatement;
         if (returnGeneratedKeys) {
-            preparedStatement = getDataSource().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         } else {
-            preparedStatement = getDataSource().getConnection().prepareStatement(sql);
+            preparedStatement = connection.prepareStatement(sql);
         }
         for (int i = 0; i < args.length; i++) {
             preparedStatement.setObject(i + 1, args[i]);
@@ -129,9 +174,28 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
 
     public DefaultJdbcTemplate() {
         this.defaultSqlStatement = new DefaultSqlStatement();
+        this.transactionManager = new JdbcTransactionManager();
+        ExtensionFactory.INSTANCE.getContainer().register(TransactionManager.class, transactionManager);
     }
 
-    private DataSource getDataSource() {
-        return ExtensionFactory.INSTANCE.getInstance(Config.class).getDataSource();
+    private Connection getConnection() throws SQLException {
+        DataSource dataSource = ExtensionFactory.INSTANCE.getInstance(Config.class).getDataSource();
+        if (dataSource == null) {
+            throw new DataSourceNotProvideException();
+        }
+        if (!(dataSource instanceof DataSourceProxy)) {
+            dataSource = new DataSourceProxy(dataSource);
+        }
+        Connection connection = ((DataSourceProxy) dataSource).getPoxyConnection();
+        if (!connection.getAutoCommit()) {
+            connection.setAutoCommit(false);
+        }
+        return connection;
+    }
+
+    private void releaseConnection(Connection connection) throws SQLException {
+        if (connection != null) {
+            connection.close();
+        }
     }
 }
