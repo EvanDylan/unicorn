@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-@SpringBootApplication(scanBasePackages = "org.rhine.unicorn.samples.common")
+@SpringBootApplication(scanBasePackages = "org.rhine.unicorn.samples")
 @RestController("/")
 @Configuration
 public class ApplicationMain {
@@ -28,7 +28,7 @@ public class ApplicationMain {
     @GetMapping("/")
     public String createUser() {
         long start = System.currentTimeMillis();
-        User user = userService.newUser(1l);
+        User user = userService.newUser(1L);
         long end = System.currentTimeMillis();
         System.out.println((end - start) + user.toString());
         return user.toString();

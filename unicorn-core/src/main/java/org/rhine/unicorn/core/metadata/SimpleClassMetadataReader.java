@@ -1,19 +1,17 @@
 package org.rhine.unicorn.core.metadata;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class SimpleClassMetadataReader implements ClassMetadataReader {
 
-    private final Set<Class<?>> classes = Sets.newConcurrentHashSet();
+    private final Set<Class<?>> classes = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    private final Map<Class<?>, ClassMetadata> classClassMetadataRegistry = Maps.newConcurrentMap();
+    private final Map<Class<?>, ClassMetadata> classClassMetadataRegistry = new ConcurrentHashMap<>();
 
     @Override
     public void addClass(Class<?> clazz) {

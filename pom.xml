@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.rhine</groupId>
-    <artifactId>unicorn</artifactId>
+    <groupId>org.rhine.unicorn</groupId>
+    <artifactId>parent</artifactId>
     <packaging>pom</packaging>
     <version>${revision}</version>
 
     <name>unicorn</name>
     <description>The parent project of unicorn</description>
-    <url>https://github.com/EvanDylan/org.rhine.unicorn</url>
+    <url>https://github.com/EvanDylan/unicorn</url>
 
     <properties>
-        <revision>0.0.1-SNAPSHOT</revision>
+        <revision>1.0.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -25,11 +25,11 @@
         <spring.version>5.2.12.RELEASE</spring.version>
         <protostuff.version>1.7.2</protostuff.version>
         <junit.version>4.11</junit.version>
-        <hikaricp.version>3.4.5</hikaricp.version>
         <spring.boot.version>2.3.7.RELEASE</spring.boot.version>
     </properties>
 
     <modules>
+        <module>unicorn-all</module>
         <module>unicorn-samples</module>
         <module>unicorn-core</module>
         <module>unicorn-storage</module>
@@ -50,36 +50,24 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-api.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>18.0</version>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
+            <!-- el engine -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl3</artifactId>
                 <version>${commons-jexl3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring.version}</version>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
                 <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-jdbc</artifactId>
-                <version>${spring.version}</version>
                 <optional>true</optional>
             </dependency>
+
             <dependency>
                 <groupId>io.protostuff</groupId>
                 <artifactId>protostuff-core</artifactId>
@@ -90,37 +78,43 @@
                 <artifactId>protostuff-runtime</artifactId>
                 <version>${protostuff.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>${hikaricp.version}</version>
-            </dependency>
 
+            <!-- integration with spring or spring boot -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+                <optional>true</optional>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-autoconfigure</artifactId>
                 <version>${spring.boot.version}</version>
                 <optional>true</optional>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot</artifactId>
                 <version>${spring.boot.version}</version>
                 <optional>true</optional>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-logging</artifactId>
                 <version>${spring.boot.version}</version>
                 <optional>true</optional>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>${spring.boot.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
                 <optional>true</optional>
             </dependency>
 
@@ -138,16 +132,8 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.1.0</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.2</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
+                    <version>3.6.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -156,10 +142,6 @@
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.0.2</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -1,5 +1,7 @@
 package org.rhine.unicorn.storage.db.tx;
 
+import org.rhine.unicorn.storage.api.tx.TransactionManager;
+
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -10,6 +12,7 @@ import java.util.logging.Logger;
 public class DataSourceProxy implements DataSource {
 
     private DataSource targetDataSource;
+    private TransactionManager transactionManager;
 
     public DataSource getPlainDataSource() {
         return targetDataSource;
@@ -20,16 +23,25 @@ public class DataSourceProxy implements DataSource {
     }
 
     public Connection getPoxyConnection() throws SQLException {
+        if (transactionManager.isTransactionActive()) {
+            return (Connection) transactionManager.getCurrentTransaction().getResource();
+        }
         return new ConnectionProxy(targetDataSource.getConnection(), true);
     }
 
     @Override
     public Connection getConnection() throws SQLException {
+        if (transactionManager.isTransactionActive()) {
+            return (Connection) transactionManager.getCurrentTransaction().getResource();
+        }
         return new ConnectionProxy(targetDataSource.getConnection());
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
+        if (transactionManager.isTransactionActive()) {
+            return (Connection) transactionManager.getCurrentTransaction().getResource();
+        }
         return new ConnectionProxy(targetDataSource.getConnection(username, password));
     }
 
@@ -76,8 +88,9 @@ public class DataSourceProxy implements DataSource {
         this.targetDataSource = targetDataSource;
     }
 
-    public DataSourceProxy(DataSource targetDataSource) {
+    public DataSourceProxy(DataSource targetDataSource, TransactionManager transactionManager) {
         this.targetDataSource = targetDataSource;
+        this.transactionManager = transactionManager;
     }
 
     public DataSourceProxy() {

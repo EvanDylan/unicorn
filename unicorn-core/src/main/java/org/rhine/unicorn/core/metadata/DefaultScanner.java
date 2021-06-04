@@ -1,6 +1,5 @@
 package org.rhine.unicorn.core.metadata;
 
-import com.google.common.collect.Lists;
 import org.rhine.unicorn.core.utils.ClassUtils;
 import org.rhine.unicorn.core.utils.CollectionUtils;
 import org.slf4j.Logger;
@@ -11,6 +10,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -56,7 +56,7 @@ public class DefaultScanner implements Scanner {
     }
 
     private Collection<Class<?>> listClass(final String packageName, final File file) {
-        List<Class<?>> classes = Lists.newArrayList();
+        List<Class<?>> classes = new ArrayList<>();
         if (file != null && file.exists() && file.isDirectory()) {
             File[] classFiles = file.listFiles(new FileFilter() {
                 @Override

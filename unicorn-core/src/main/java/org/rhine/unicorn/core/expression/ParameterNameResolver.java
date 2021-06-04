@@ -1,16 +1,16 @@
 package org.rhine.unicorn.core.expression;
 
-import com.google.common.collect.Maps;
 import org.rhine.unicorn.core.imported.asm.*;
 import org.rhine.unicorn.core.utils.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ParameterNameResolver {
 
-    private Map<Method, String[]> methodParameterNamesCache = Maps.newConcurrentMap();
+    private final Map<Method, String[]> methodParameterNamesCache = new ConcurrentHashMap<>();
 
     public String[] getParameterNames(Method method) {
         ClassReader classReader = ClassUtils.getClassReader(method.getDeclaringClass());

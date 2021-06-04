@@ -14,12 +14,12 @@ import org.rhine.unicorn.core.store.Storage;
  */
 public class Configuration {
 
-    private Config config;
-    private ExpressionEngine expressionEngine;
-    private Storage storage;
-    private Scanner scanner;
-    private ProxyFactory proxyFactory;
-    private Serialization serialization;
+    private final Config config;
+    private final ExpressionEngine expressionEngine;
+    private final Storage storage;
+    private final Scanner scanner;
+    private final ProxyFactory proxyFactory;
+    private final Serialization serialization;
 
     public Config getConfig() {
         return config;
@@ -59,6 +59,7 @@ public class Configuration {
         this.scanner.scan(this.config.getPackageNames());
         this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class, this.config.getElParseEngine());
         this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class, this.config.getStoreType());
+        this.serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class, this.config.getSerialization());
         this.proxyFactory = ExtensionFactory.INSTANCE.getInstance(ProxyFactory.class);
     }
 

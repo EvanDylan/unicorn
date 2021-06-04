@@ -3,7 +3,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.rhine</groupId>
+        <groupId>org.rhine.unicorn</groupId>
         <artifactId>unicorn-storage</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
@@ -15,14 +15,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.rhine</groupId>
+            <groupId>org.rhine.unicorn</groupId>
             <artifactId>unicorn-storage-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>${jedis.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -32,6 +32,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
         ResultSet resultSet = null;
         try {
             connection = getConnection();
+            transactionManager.beginTransaction((Resource) connection);
             preparedStatement = preparedStatement(connection, this.defaultSqlStatement.getQuerySql(), args);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -47,8 +48,14 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
                 record.setExpireMillis(resultSet.getTimestamp(9).getTime());
                 return record;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             logger.error("read record log error", e);
+            try {
+                transactionManager.endTransaction();
+                releaseConnection(connection);
+            } catch (Exception ignore) {
+                // ignore it
+            }
             throw new ReadException("read error", e);
         } finally {
             try {
@@ -58,7 +65,6 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
                 if (resultSet != null) {
                     resultSet.close();
                 }
-                releaseConnection(connection);
             } catch (Exception e) {
                 // ignore it
             }
@@ -175,7 +181,6 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
     public DefaultJdbcTemplate() {
         this.defaultSqlStatement = new DefaultSqlStatement();
         this.transactionManager = new JdbcTransactionManager();
-        ExtensionFactory.INSTANCE.getContainer().register(TransactionManager.class, transactionManager);
     }
 
     private Connection getConnection() throws SQLException {
@@ -184,7 +189,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
             throw new DataSourceNotProvideException();
         }
         if (!(dataSource instanceof DataSourceProxy)) {
-            dataSource = new DataSourceProxy(dataSource);
+            dataSource = new DataSourceProxy(dataSource, transactionManager);
         }
         Connection connection = ((DataSourceProxy) dataSource).getPoxyConnection();
         if (!connection.getAutoCommit()) {

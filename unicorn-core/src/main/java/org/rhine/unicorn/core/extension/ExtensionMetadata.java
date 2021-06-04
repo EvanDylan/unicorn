@@ -1,11 +1,11 @@
 package org.rhine.unicorn.core.extension;
 
-import com.google.common.base.Objects;
 import org.rhine.unicorn.core.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 public class ExtensionMetadata {
 
@@ -82,13 +82,14 @@ public class ExtensionMetadata {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ExtensionMetadata that = (ExtensionMetadata) o;
-        return Objects.equal(interfaceClass, that.interfaceClass) &&
-                Objects.equal(extensionClass, that.extensionClass) &&
-                Objects.equal(extensionName, that.extensionName);
+
+        return Objects.equals(interfaceClass, that.interfaceClass) &&
+                Objects.equals(extensionClass, that.extensionClass) &&
+                Objects.equals(extensionName, that.extensionName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(interfaceClass, extensionClass, extensionName);
+        return Objects.hash(interfaceClass, extensionClass, extensionName);
     }
 }

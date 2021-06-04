@@ -20,15 +20,27 @@ public class JdbcTransactionManager implements TransactionManager {
 
     @Override
     public Transaction beginTransaction(Resource resource) throws Exception {
+        if (isTransactionActive()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("return existed transaction");
+            }
+            return getCurrentTransaction();
+        }
         JdbcTransaction transaction = new JdbcTransaction();
         transaction.setResource(resource);
         TransactionHolder.setTransaction(transaction);
+        if (logger.isDebugEnabled()) {
+            logger.debug("create new transaction");
+        }
         return transaction;
     }
 
     @Override
     public void endTransaction() throws Exception {
         TransactionHolder.remove();
+        if (logger.isDebugEnabled()) {
+            logger.debug("end of transaction");
+        }
     }
 
     @Override

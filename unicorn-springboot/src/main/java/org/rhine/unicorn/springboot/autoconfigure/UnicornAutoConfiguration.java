@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
@@ -21,10 +22,11 @@ import javax.sql.DataSource;
 public class UnicornAutoConfiguration {
 
     @Bean
+    @Primary
     @ConditionalOnMissingBean(Config.class)
     @ConditionalOnProperty(value = Constants.UNICORN_CONFIG_STORE_TYPE, havingValue = "db")
     public Config config(DataSource dataSource, UnicornConfigurationProperties config, ApplicationProperties applicationProperties) {
-        config.setDataSource(new DataSourceProxy(dataSource));
+        config.setDataSource(dataSource);
         if (StringUtils.isEmpty(config.getApplicationName())) {
             config.setApplicationName(applicationProperties.getName());
         }

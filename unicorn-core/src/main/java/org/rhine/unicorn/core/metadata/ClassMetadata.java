@@ -1,11 +1,10 @@
 package org.rhine.unicorn.core.metadata;
 
-import com.google.common.collect.Sets;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 public class ClassMetadata {
@@ -31,7 +30,7 @@ public class ClassMetadata {
     }
 
     public Collection<Method> getMethodsWithAnnotation(Class<? extends Annotation> annotationClass) {
-        Set<Method> matchedMethod = Sets.newHashSet();
+        Set<Method> matchedMethod = new HashSet<>();
         for (Method method : this.methods) {
             if (method.isAnnotationPresent(annotationClass)) {
                 matchedMethod.add(method);

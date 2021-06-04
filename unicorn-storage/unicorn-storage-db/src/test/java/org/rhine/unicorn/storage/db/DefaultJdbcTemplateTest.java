@@ -1,8 +1,6 @@
 package org.rhine.unicorn.storage.db;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,8 +10,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static org.junit.Assert.*;
+
 @RunWith(JUnit4.class)
-public class JdbcTemplateTest {
+public class DefaultJdbcTemplateTest {
 
     private static DataSource dataSource;
 
@@ -42,4 +42,15 @@ public class JdbcTemplateTest {
         dataSource = jdbcDataSource;
     }
 
+    @Test
+    public void query() {
+    }
+
+    @Test
+    public void insert() {
+    }
+
+    @Test
+    public void update() {
+    }
 }
