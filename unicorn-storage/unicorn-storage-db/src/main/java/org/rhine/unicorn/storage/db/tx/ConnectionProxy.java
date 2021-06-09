@@ -1,6 +1,6 @@
 package org.rhine.unicorn.storage.db.tx;
 
-import org.rhine.unicorn.storage.api.tx.Resource;
+import org.rhine.unicorn.core.store.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

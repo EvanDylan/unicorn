@@ -6,7 +6,7 @@ import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.store.ReadException;
 import org.rhine.unicorn.core.store.RecordLog;
 import org.rhine.unicorn.core.store.WriteException;
-import org.rhine.unicorn.storage.api.tx.Resource;
+import org.rhine.unicorn.core.store.Resource;
 import org.rhine.unicorn.storage.api.tx.TransactionManager;
 import org.rhine.unicorn.storage.db.tx.ConnectionProxy;
 import org.rhine.unicorn.storage.db.tx.DataSourceProxy;
@@ -184,7 +184,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
     }
 
     private Connection getConnection() throws SQLException {
-        DataSource dataSource = ExtensionFactory.INSTANCE.getInstance(Config.class).getDataSource();
+        DataSource dataSource = (DataSource) ExtensionFactory.INSTANCE.getInstance(Config.class).getDataSource();
         if (dataSource == null) {
             throw new DataSourceNotProvideException();
         }

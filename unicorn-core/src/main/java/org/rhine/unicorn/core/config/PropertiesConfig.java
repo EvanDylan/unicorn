@@ -4,7 +4,6 @@ import org.rhine.unicorn.core.extension.SPI;
 import org.rhine.unicorn.core.utils.ClassUtils;
 import org.rhine.unicorn.core.utils.StringUtils;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -93,7 +92,7 @@ public class PropertiesConfig implements Config {
     }
 
     @Override
-    public DataSource getDataSource() {
+    public Object getDataSource() {
         if (INIT.get()) {
             init();
         }

@@ -15,7 +15,7 @@ public class SpringConfig implements Config, EnvironmentAware {
 
     private Environment environment;
 
-    private DataSource dataSource;
+    private Object dataSource;
 
     private String applicationName;
 
@@ -34,7 +34,7 @@ public class SpringConfig implements Config, EnvironmentAware {
 
     @Override
     public DataSource getDataSource() {
-        return dataSource;
+        return (DataSource) dataSource;
     }
 
     @Override

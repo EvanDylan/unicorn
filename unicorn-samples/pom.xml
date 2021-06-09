@@ -12,7 +12,7 @@
 
     <artifactId>unicorn-samples</artifactId>
     <packaging>pom</packaging>
-    <name>unicorn-samples</name>
+    <name>${project.artifactId}</name>
 
     <modules>
         <module>unicorn-samples-spring-xml</module>
@@ -23,16 +23,6 @@
         <dependency>
             <groupId>org.rhine.unicorn</groupId>
             <artifactId>unicorn-springboot</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.rhine.unicorn</groupId>
-            <artifactId>unicorn-spring</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.rhine.unicorn</groupId>
-            <artifactId>unicorn-storage-db</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>

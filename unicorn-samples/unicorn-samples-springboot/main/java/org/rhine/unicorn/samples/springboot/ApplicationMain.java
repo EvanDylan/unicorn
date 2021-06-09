@@ -2,14 +2,11 @@ package org.rhine.unicorn.samples.springboot;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.mybatis.spring.annotation.MapperScan;
-import org.rhine.unicorn.core.annotation.Idempotent;
 import org.rhine.unicorn.samples.springboot.entity.User;
 import org.rhine.unicorn.samples.springboot.service.UserService;
 import org.rhine.unicorn.storage.db.tx.DataSourceProxy;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.GetMapping;
