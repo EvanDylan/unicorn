@@ -1,32 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:unicorn="http://www.rhine.org/schema/unicorn"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-           http://www.rhine.org/schema/unicorn
-           http://www.rhine.org/schema/unicorn.xsd">
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+       http://www.rhine.org/schema/unicorn https://www.rhine.org/schema/unicorn.xsd">
 
-    <unicorn:config applicationName="samples" elParseEngine="spring" storeType="db" serialization="protostuff" dataSource="unicornDataSource"/>
+    <unicorn:config applicationName="samples" elParseEngine="spring" storeType="db" serialization="protostuff"
+                    dataSource="proxyDataSource"/>
+    <context:component-scan base-package="org.rhine.unicorn.samples.springxml"/>
+    <tx:annotation-driven/>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="proxyDataSource"/>
+    </bean>
 
-    <bean id="userService" class="org.rhine.unicorn.samples.common.UserService"/>
-
+    <bean id="proxyDataSource" class="org.rhine.unicorn.storage.db.tx.DataSourceProxy">
+        <property name="targetDataSource" ref="dataSource"/>
+    </bean>
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
-        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
-        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/unicorn?characterEncoding=utf8&amp;useSSL=false&amp;allowMultiQueries=true" />
-        <property name="username" value="root" />
-        <property name="password" value="JayEvan888266" />
-        <!-- 连接只读数据库时配置为true， 保证安全 -->
-        <property name="readOnly" value="false" />
-        <!-- 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 缺省:30秒 -->
-        <property name="connectionTimeout" value="30000" />
-        <!-- 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），缺省:10分钟 -->
-        <property name="idleTimeout" value="600000" />
-        <!-- 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒，参考MySQL
-            wait_timeout参数（show variables like '%timeout%';） -->
-        <property name="maxLifetime" value="1800000" />
-        <!-- 连接池中允许的最大连接数。缺省值：10；推荐的公式：((core_count * 2) + effective_spindle_count) -->
-        <property name="maximumPoolSize" value="60" />
-        <property name="minimumIdle" value="10" />
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl"
+                  value="jdbc:mysql://localhost:3306/unicorn?characterEncoding=utf8&amp;useSSL=false&amp;allowMultiQueries=true"/>
+        <property name="username" value="root"/>
+        <property name="password" value="123456"/>
+        <property name="autoCommit" value="false"/>
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.rhine.unicorn.samples.springxml.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
     </bean>
 </beans>

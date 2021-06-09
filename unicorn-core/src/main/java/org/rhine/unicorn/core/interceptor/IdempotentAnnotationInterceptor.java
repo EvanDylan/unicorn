@@ -1,6 +1,6 @@
 package org.rhine.unicorn.core.interceptor;
 
-import org.rhine.unicorn.core.bootstrap.Configuration;
+import org.rhine.unicorn.core.config.Config;
 import org.rhine.unicorn.core.imported.cglib.proxy.MethodInterceptor;
 import org.rhine.unicorn.core.imported.cglib.proxy.MethodProxy;
 import org.rhine.unicorn.core.store.RecordLog;
@@ -29,7 +29,7 @@ public class IdempotentAnnotationInterceptor extends IdempotentAspectSupport imp
         return object;
     }
 
-    public IdempotentAnnotationInterceptor(Configuration configuration) {
-        super(configuration);
+    public IdempotentAnnotationInterceptor(Config config) {
+        super(config);
     }
 }

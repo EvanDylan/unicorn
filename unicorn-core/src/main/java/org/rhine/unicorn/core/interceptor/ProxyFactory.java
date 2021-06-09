@@ -1,10 +1,10 @@
 package org.rhine.unicorn.core.interceptor;
 
 
-import org.rhine.unicorn.core.bootstrap.Configuration;
+import org.rhine.unicorn.core.config.Config;
 
 public interface ProxyFactory {
 
-    Object createProxy(Object targetObject, Configuration configuration);
+    Object createProxy(Object targetObject, Config config);
 
 }

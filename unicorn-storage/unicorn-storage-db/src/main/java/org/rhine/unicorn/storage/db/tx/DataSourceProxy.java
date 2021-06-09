@@ -1,5 +1,6 @@
 package org.rhine.unicorn.storage.db.tx;
 
+import org.rhine.unicorn.core.extension.ExtensionFactory;
 import org.rhine.unicorn.storage.api.tx.TransactionManager;
 
 import javax.sql.DataSource;
@@ -12,7 +13,7 @@ import java.util.logging.Logger;
 public class DataSourceProxy implements DataSource {
 
     private DataSource targetDataSource;
-    private TransactionManager transactionManager;
+    private TransactionManager transactionManager = ExtensionFactory.INSTANCE.getInstance(TransactionManager.class);
 
     public DataSource getPlainDataSource() {
         return targetDataSource;
@@ -88,9 +89,8 @@ public class DataSourceProxy implements DataSource {
         this.targetDataSource = targetDataSource;
     }
 
-    public DataSourceProxy(DataSource targetDataSource, TransactionManager transactionManager) {
+    public DataSourceProxy(DataSource targetDataSource) {
         this.targetDataSource = targetDataSource;
-        this.transactionManager = transactionManager;
     }
 
     public DataSourceProxy() {

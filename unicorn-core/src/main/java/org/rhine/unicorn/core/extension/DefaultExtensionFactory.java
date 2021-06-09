@@ -1,6 +1,7 @@
 package org.rhine.unicorn.core.extension;
 
 import org.rhine.unicorn.core.utils.ReflectUtils;
+import org.rhine.unicorn.core.utils.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -21,6 +22,9 @@ public class DefaultExtensionFactory implements ExtensionFactory {
         }
         if (!clazz.isInterface()) {
             throw new IllegalArgumentException("[" +  clazz.getName() + "]" + " must be interface");
+        }
+        if (StringUtils.isEmpty(spiName)) {
+            throw new IllegalArgumentException("spiName can't be null or empty");
         }
         Class<?> matchedExtensionClass = ExtensionLoader.loadExtensionClass(clazz, spiName);
         ExtensionMetadata extensionMetadata = ExtensionDefinitionRegistry.getExtensionDefinition(matchedExtensionClass);

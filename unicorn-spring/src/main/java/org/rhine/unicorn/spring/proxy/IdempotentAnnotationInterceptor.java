@@ -4,6 +4,7 @@ package org.rhine.unicorn.spring.proxy;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.rhine.unicorn.core.bootstrap.Configuration;
+import org.rhine.unicorn.core.config.Config;
 import org.rhine.unicorn.core.interceptor.DuplicateRequestHandler;
 import org.rhine.unicorn.core.interceptor.IdempotentAspectSupport;
 import org.rhine.unicorn.core.interceptor.IdempotentException;
@@ -13,8 +14,8 @@ import java.lang.reflect.Method;
 
 public class IdempotentAnnotationInterceptor extends IdempotentAspectSupport implements MethodInterceptor {
 
-    public IdempotentAnnotationInterceptor(Configuration configuration) {
-        super(configuration);
+    public IdempotentAnnotationInterceptor(Config config) {
+        super(config);
     }
 
     @Override

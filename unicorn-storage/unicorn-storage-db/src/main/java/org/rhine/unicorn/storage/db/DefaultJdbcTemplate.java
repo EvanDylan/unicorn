@@ -8,8 +8,8 @@ import org.rhine.unicorn.core.store.RecordLog;
 import org.rhine.unicorn.core.store.WriteException;
 import org.rhine.unicorn.storage.api.tx.Resource;
 import org.rhine.unicorn.storage.api.tx.TransactionManager;
+import org.rhine.unicorn.storage.db.tx.ConnectionProxy;
 import org.rhine.unicorn.storage.db.tx.DataSourceProxy;
-import org.rhine.unicorn.storage.db.tx.JdbcTransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,7 +180,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
 
     public DefaultJdbcTemplate() {
         this.defaultSqlStatement = new DefaultSqlStatement();
-        this.transactionManager = new JdbcTransactionManager();
+        this.transactionManager = ExtensionFactory.INSTANCE.getInstance(TransactionManager.class);
     }
 
     private Connection getConnection() throws SQLException {
@@ -189,7 +189,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
             throw new DataSourceNotProvideException();
         }
         if (!(dataSource instanceof DataSourceProxy)) {
-            dataSource = new DataSourceProxy(dataSource, transactionManager);
+            dataSource = new DataSourceProxy(dataSource);
         }
         Connection connection = ((DataSourceProxy) dataSource).getPoxyConnection();
         if (!connection.getAutoCommit()) {
@@ -200,7 +200,7 @@ public class DefaultJdbcTemplate implements JdbcTemplate {
 
     private void releaseConnection(Connection connection) throws SQLException {
         if (connection != null) {
-            connection.close();
+            ((ConnectionProxy) connection).plainClose();
         }
     }
 }

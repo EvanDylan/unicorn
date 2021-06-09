@@ -8,6 +8,7 @@ import org.rhine.unicorn.core.metadata.DefaultScanner;
 import org.rhine.unicorn.core.metadata.Scanner;
 import org.rhine.unicorn.core.serialize.Serialization;
 import org.rhine.unicorn.core.store.Storage;
+import org.rhine.unicorn.core.utils.StringUtils;
 
 /**
  * config info
@@ -17,8 +18,7 @@ public class Configuration {
     private final Config config;
     private final ExpressionEngine expressionEngine;
     private final Storage storage;
-    private final Scanner scanner;
-    private final ProxyFactory proxyFactory;
+    private final Scanner scanner = new DefaultScanner();
     private final Serialization serialization;
 
     public Config getConfig() {
@@ -49,27 +49,43 @@ public class Configuration {
         return this.config.getStringValue(key);
     }
 
-    public Object getProxyObject(Object targetObject) {
-        return proxyFactory.createProxy(targetObject, this);
-    }
-
     public Configuration() {
         this.config = ExtensionFactory.INSTANCE.getInstance(Config.class);
-        this.scanner = new DefaultScanner();
         this.scanner.scan(this.config.getPackageNames());
-        this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class, this.config.getElParseEngine());
-        this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class, this.config.getStoreType());
-        this.serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class, this.config.getSerialization());
-        this.proxyFactory = ExtensionFactory.INSTANCE.getInstance(ProxyFactory.class);
+        if (StringUtils.isEmpty(this.config.getElParseEngine())) {
+            this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class);
+        } else {
+            this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class, this.config.getElParseEngine());
+        }
+        if (StringUtils.isEmpty(this.config.getStoreType())) {
+            this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class);
+        } else {
+            this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class, this.config.getStoreType());
+        }
+        if (StringUtils.isEmpty(this.config.getSerialization())) {
+            this.serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class);
+        } else {
+            this.serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class, this.config.getSerialization());
+        }
     }
 
     public Configuration(Config config) {
         this.config = config;
-        this.scanner = new DefaultScanner();
         this.scanner.scan(this.config.getPackageNames());
-        this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class, this.config.getElParseEngine());
-        this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class, this.config.getStoreType());
-        this.serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class, this.config.getSerialization());
-        this.proxyFactory = ExtensionFactory.INSTANCE.getInstance(ProxyFactory.class);
+        if (StringUtils.isEmpty(this.config.getElParseEngine())) {
+            this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class);
+        } else {
+            this.expressionEngine = ExtensionFactory.INSTANCE.getInstance(ExpressionEngine.class, this.config.getElParseEngine());
+        }
+        if (StringUtils.isEmpty(this.config.getStoreType())) {
+            this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class);
+        } else {
+            this.storage = ExtensionFactory.INSTANCE.getInstance(Storage.class, this.config.getStoreType());
+        }
+        if (StringUtils.isEmpty(this.config.getSerialization())) {
+            this.serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class);
+        } else {
+            this.serialization = ExtensionFactory.INSTANCE.getInstance(Serialization.class, this.config.getSerialization());
+        }
     }
 }

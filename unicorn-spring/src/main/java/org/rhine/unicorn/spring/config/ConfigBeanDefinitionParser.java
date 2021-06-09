@@ -1,9 +1,11 @@
 package org.rhine.unicorn.spring.config;
 
-import org.rhine.unicorn.spring.context.IdempotentAnnotationBeanProcessor;
 import org.rhine.unicorn.spring.context.SpringBeanContainerInitializer;
+import org.rhine.unicorn.spring.proxy.IdempotentAdvisor;
 import org.rhine.unicorn.spring.utils.BeanDefinitionUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
@@ -39,8 +41,11 @@ public class ConfigBeanDefinitionParser extends AbstractSingleBeanDefinitionPars
         if (element.hasAttribute(DATASOURCE)) {
             builder.addAutowiredProperty(DATASOURCE);
         }
-        BeanDefinitionUtils.registerBeanDefinition(IdempotentAnnotationBeanProcessor.class, parserContext.getRegistry());
         BeanDefinitionUtils.registerBeanDefinition(SpringBeanContainerInitializer.class, parserContext.getRegistry());
+
+        BeanDefinitionBuilder advisorBuilder = BeanDefinitionBuilder.genericBeanDefinition(IdempotentAdvisor.class);
+        advisorBuilder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        BeanDefinitionUtils.registerBeanDefinition(advisorBuilder.getBeanDefinition(), parserContext.getRegistry());
     }
 
     @Override

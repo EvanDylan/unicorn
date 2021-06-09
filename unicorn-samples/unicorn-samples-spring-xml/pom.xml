@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.rhine.unicorn</groupId>
-            <artifactId>unicorn-samples-common</artifactId>
+            <artifactId>unicorn-samples</artifactId>
             <version>${revision}</version>
         </dependency>
     </dependencies>
