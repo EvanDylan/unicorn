@@ -18,7 +18,7 @@ public class RecordLog implements Serializable {
      * 消息标志位
      * <p>
      *     1. 记录被拦截方式是否{@link java.lang.Void} 返回类型
-     *     2. 记录方法返回值序列化类型{@link org.rhine.unicorn.core.serialize.ProtostuffSerialization}
+     *     2. 记录方法返回值序列化类型{@link org.rhine.unicorn.core.serialize.Serialization}
      * </p>
      */
     private long flag;

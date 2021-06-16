@@ -209,6 +209,7 @@ public class ConnectionProxy implements Connection, Resource {
 
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
+        isAlreadyRollback = true;
         targetConnection.rollback();
     }
 

@@ -5,7 +5,6 @@ import org.rhine.unicorn.core.extension.SPI;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,8 +32,8 @@ public class SpringConfig implements Config, EnvironmentAware {
     }
 
     @Override
-    public DataSource getDataSource() {
-        return (DataSource) dataSource;
+    public Object getDataSource() {
+        return dataSource;
     }
 
     @Override
@@ -75,7 +74,7 @@ public class SpringConfig implements Config, EnvironmentAware {
         return environment.getProperty(key);
     }
 
-    public void setDataSource(DataSource dataSource) {
+    public void setDataSource(Object dataSource) {
         this.dataSource = dataSource;
     }
 

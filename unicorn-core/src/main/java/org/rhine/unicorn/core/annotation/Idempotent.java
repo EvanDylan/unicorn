@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * declare annotated method or all of methods of class must be idempotent.
+ * declare annotated method must be idempotent.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
